@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfect Agence Service — Contrat de Maintenance & SAV</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#20282b;
+    --paper:#f6f3ec;
+    --panel:#ffffff;
+    --navy:#0f2e38;
+    --navy-light:#173f4c;
+    --navy-deep:#081319;
+    --gold:#c9a24a;
+    --gold-light:#e8cf8a;
+    --amber:#e0972f;
+    --green:#3f9e63;
+    --red:#b5451c;
+    --line:#d9d2c1;
+    --muted:#6b6459;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', -apple-system, 'Segoe UI', Arial, sans-serif;
+    -webkit-font-smoothing:antialiased;
+    scroll-behavior:smooth;
+  }
+  .mono{font-family:'JetBrains Mono','Consolas',monospace;}
+  .display{font-family:'Space Grotesk', 'Inter', sans-serif;}
+
+  /* ============ HERO / ACCUEIL PREMIUM ============ */
+  .hero{
+    position:relative;
+    min-height:100svh;
+    background:
+      radial-gradient(circle at 50% 38%, rgba(201,162,74,.10), transparent 55%),
+      linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 62%, #0c232b 100%);
+    color:#f2efe6;
+    overflow:hidden;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    padding:60px 22px 50px;
+  }
+  /* grille azimut/élévation en fond, discret */
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(232,207,138,.05) 0 1px, transparent 1px 64px),
+      repeating-linear-gradient(90deg, rgba(232,207,138,.05) 0 1px, transparent 1px 64px);
+    mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 72%);
+    -webkit-mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 72%);
+  }
+  .hero-inner{ position:relative; z-index:2; max-width:520px; }
+
+  .dish-wrap{
+    position:relative; width:150px; height:150px; margin:0 auto 26px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ring{
+    position:absolute; border-radius:50%;
+    border:1px solid rgba(232,207,138,.35);
+    opacity:0;
+  }
+  .ring1{width:60px; height:60px;}
+  .ring2{width:100px; height:100px;}
+  .ring3{width:150px; height:150px;}
+  .dish-core{
+    position:relative; z-index:3;
+    width:52px; height:52px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 55%, #8a6c22 100%);
+    box-shadow:0 0 22px rgba(201,162,74,.45);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .dish-core svg{width:26px; height:26px;}
+  .lock-label{
+    margin-top:14px; font-size:11px; letter-spacing:2.2px; text-transform:uppercase;
+    color:var(--gold-light); opacity:0; font-family:'JetBrains Mono',monospace;
+  }
+
+  @media (prefers-reduced-motion: no-preference){
+    .ring1{animation:ringPulse 2.2s ease-out .15s infinite;}
+    .ring2{animation:ringPulse 2.2s ease-out .35s infinite;}
+    .ring3{animation:ringPulse 2.2s ease-out .55s infinite;}
+    .dish-core{animation:coreIn .7s ease-out both;}
+    .lock-label{animation:labelIn .6s ease-out 1.6s both;}
+    .hero-title{animation:riseIn .8s ease-out .25s both;}
+    .hero-tag{animation:riseIn .8s ease-out .45s both;}
+    .hero-chips{animation:riseIn .8s ease-out .65s both;}
+    .hero-cta{animation:riseIn .8s ease-out .85s both;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ring1,.ring2,.ring3{opacity:.5;}
+    .lock-label{opacity:1;}
+  }
+  @keyframes ringPulse{
+    0%{transform:scale(.7); opacity:0;}
+    35%{opacity:.9;}
+    100%{transform:scale(1.35); opacity:0;}
+  }
+  @keyframes coreIn{
+    0%{transform:scale(.4); opacity:0;}
+    100%{transform:scale(1); opacity:1;}
+  }
+  @keyframes labelIn{ to{opacity:1;} }
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  .hero-eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:3px;
+    text-transform:uppercase; color:var(--gold-light); margin-bottom:10px; opacity:.9;
+  }
+  .hero-title{
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    font-size:clamp(30px, 7vw, 44px); line-height:1.08; margin:0 0 14px; letter-spacing:-.2px;
+  }
+  .hero-title em{ color:var(--gold-light); font-style:normal; }
+  .hero-tag{
+    font-size:15px; color:#c9d3ce; line-height:1.55; margin:0 auto 26px; max-width:420px;
+  }
+  .hero-chips{
+    display:flex; flex-wrap:wrap; gap:9px; justify-content:center; margin-bottom:32px;
+  }
+  .hero-chip{
+    font-size:11.5px; padding:7px 13px; border-radius:999px;
+    border:1px solid rgba(232,207,138,.3); color:#e9e4d6; background:rgba(255,255,255,.03);
+    letter-spacing:.2px;
+  }
+  .hero-cta{
+    display:inline-flex; align-items:center; gap:9px;
+    background:linear-gradient(135deg, var(--gold-light), var(--gold));
+    color:#241c05; font-weight:700; font-size:14.5px;
+    padding:14px 26px; border-radius:9px; text-decoration:none;
+    box-shadow:0 8px 22px rgba(201,162,74,.28);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .hero-cta:hover{ transform:translateY(-1px); box-shadow:0 10px 26px rgba(201,162,74,.38); }
+  .hero-foot{
+    margin-top:20px; font-size:11px; color:#8ba39b; letter-spacing:.3px;
+  }
+  .scroll-cue{
+    position:absolute; bottom:22px; left:50%; transform:translateX(-50%);
+    width:1px; height:34px; background:linear-gradient(180deg, rgba(232,207,138,.6), transparent);
+    z-index:2;
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .scroll-cue{animation:cueMove 1.8s ease-in-out infinite;}
+  }
+  @keyframes cueMove{
+    0%,100%{opacity:.15;}
+    50%{opacity:.9;}
+  }
+
+  /* HEADER */
+  header{
+    background:var(--navy);
+    color:#eef4f0;
+    padding:18px 20px 22px;
+    position:sticky; top:0; z-index:20;
+    box-shadow:0 3px 10px rgba(0,0,0,.15);
+  }
+  .brand{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .brand-name{
+    font-family:'Space Grotesk','Segoe UI', sans-serif;
+    font-weight:700;
+    letter-spacing:.3px;
+    font-size:17px;
+    text-transform:uppercase;
+  }
+  .brand-sub{
+    font-size:11px; color:#9fb8ad; margin-top:2px; letter-spacing:.3px;
+  }
+  .ref{
+    font-size:11px; text-align:right; color:#9fb8ad;
+  }
+  .ref b{color:#eef4f0; font-size:13px; display:block;}
+
+  /* Signal meter = progress */
+  .signal{display:flex; align-items:flex-end; gap:4px; margin-top:14px; height:22px;}
+  .bar{width:18px; background:#2a4952; border-radius:2px 2px 0 0; transition:background .25s;}
+  .bar:nth-child(1){height:6px;}
+  .bar:nth-child(2){height:11px;}
+  .bar:nth-child(3){height:16px;}
+  .bar:nth-child(4){height:22px;}
+  .bar.on{background:var(--green);}
+  .signal-label{font-size:10px; color:#9fb8ad; margin-left:8px; align-self:center; letter-spacing:.4px;}
+
+  main{max-width:640px; margin:0 auto; padding:18px 16px 140px;}
+
+  .section{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 16px;
+    margin-bottom:16px;
+  }
+  .section h2{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    color:var(--navy);
+    margin:0 0 4px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .section h2 .num{
+    background:var(--navy); color:#fff; width:20px; height:20px; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:11px; font-family:monospace;
+  }
+  .section p.hint{font-size:12px; color:var(--muted); margin:0 0 14px;}
+
+  label{
+    display:block; font-size:12.5px; font-weight:600; color:var(--ink);
+    margin:12px 0 5px;
+  }
+  label.first{margin-top:0;}
+  input[type=text], input[type=tel], input[type=date], input[type=number], textarea, select{
+    width:100%; padding:10px 11px; border:1px solid var(--line); border-radius:7px;
+    font-size:14.5px; background:#fff; color:var(--ink); font-family:inherit;
+  }
+  textarea{resize:vertical; min-height:64px;}
+  input:focus, textarea:focus, select:focus{outline:2px solid var(--navy-light); outline-offset:1px;}
+
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media (max-width:420px){.row2{grid-template-columns:1fr;}}
+
+  .radio-grid{display:flex; flex-direction:column; gap:8px; margin-top:6px;}
+  .radio-opt, .check-opt{
+    display:flex; align-items:center; gap:10px;
+    border:1px solid var(--line); border-radius:8px; padding:10px 12px;
+    cursor:pointer; background:#fdfcf9;
+  }
+  .radio-opt input, .check-opt input{width:auto; margin:0;}
+  .radio-opt.active, .check-opt.active{border-color:var(--navy); background:#eef4f2;}
+  .check-opt .price{
+    margin-left:auto; width:110px; display:none;
+  }
+  .check-opt.active .price{display:block;}
+  .price-locked{
+    margin-left:auto; font-size:13px; font-weight:700; color:var(--navy);
+    background:#eef4f2; border:1px solid #cfe0da; padding:6px 10px; border-radius:6px;
+    white-space:nowrap;
+  }
+  .price-locked.devis{
+    color:var(--muted); background:#f2ede0; border-color:var(--line); font-weight:600; font-style:italic;
+  }
+  .check-opt.locked.active .price-locked{ border-color:var(--gold); background:#fbf3e2; color:#7a5c14; }
+  .zone-note{ font-size:12px; color:var(--muted); margin-top:6px; min-height:16px; }
+  .devis-note{
+    font-size:12px; color:var(--muted); margin-top:8px; background:#f2ede0; border-radius:6px; padding:8px 10px;
+  }
+  .opt-title{font-size:13.5px; font-weight:600;}
+  .opt-sub{font-size:11px; color:var(--muted);}
+
+  .freq-wrap{display:none; margin-top:6px;}
+  .freq-wrap.show{display:block;}
+  .infobox{
+    background:#eef4f2; border:1px solid #cfe0da; border-radius:8px;
+    padding:10px 12px; font-size:12.5px; color:var(--navy-light); margin-bottom:12px; line-height:1.5;
+  }
+
+  .total-line{
+    display:flex; justify-content:space-between; align-items:baseline;
+    border-top:1px dashed var(--line); margin-top:14px; padding-top:12px;
+  }
+  .total-line .label{font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px;}
+  .total-line .amount{font-size:20px; font-weight:800; color:var(--navy);}
+
+  /* Signature */
+  #padWrap{
+    border:1.5px dashed var(--line); border-radius:8px; background:#fff;
+    touch-action:none; position:relative;
+  }
+  #padWrap canvas{width:100%; display:block; border-radius:8px;}
+  .pad-placeholder{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:#c3bcaa; font-size:13px; pointer-events:none;
+  }
+  .sig-actions{display:flex; justify-content:space-between; align-items:center; margin-top:8px;}
+  .btn-ghost{
+    background:none; border:none; color:var(--red); font-size:12.5px; font-weight:600;
+    cursor:pointer; padding:4px 6px;
+  }
+  .consent{
+    display:flex; gap:10px; align-items:flex-start; margin-top:14px; font-size:12.5px; color:var(--ink);
+  }
+  .consent input{margin-top:3px;}
+
+  /* Recap */
+  #recapBox{font-size:13px; line-height:1.7;}
+  #recapBox .rline{display:flex; justify-content:space-between; gap:10px; border-bottom:1px solid #f0ece1; padding:4px 0;}
+  #recapBox .rline span:first-child{color:var(--muted);}
+  #recapBox .empty{color:var(--muted); font-style:italic;}
+
+  /* Sticky action bar */
+  .actionbar{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--panel); border-top:1px solid var(--line);
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    display:flex; gap:10px; z-index:30;
+    box-shadow:0 -4px 14px rgba(0,0,0,.06);
+  }
+  .actionbar .btn{
+    flex:1; padding:13px 10px; border-radius:8px; border:none; font-size:13.5px; font-weight:700;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;
+  }
+  .btn-pdf{background:var(--navy); color:#fff;}
+  .btn-wa{background:var(--green); color:#fff;}
+  .btn:disabled{background:#cfcabd !important; color:#8a8477 !important; cursor:not-allowed;}
+  .status{
+    font-size:11px; text-align:center; color:var(--muted); padding:4px 16px 0;
+  }
+  .status.ok{color:var(--green); font-weight:600;}
+
+  .config-note{
+    font-size:11px; color:var(--muted); text-align:center; margin-top:6px;
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Perfect Agence Service</div>
+
+    <div class="dish-wrap">
+      <div class="ring ring1"></div>
+      <div class="ring ring2"></div>
+      <div class="ring ring3"></div>
+      <div class="dish-core">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M4 10C4 6 7.5 3 12 3C16.5 3 20 6 20 10" stroke="#241c05" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="12" cy="10" r="2" fill="#241c05"/>
+          <path d="M12 12L12 21" stroke="#241c05" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M8 21H16" stroke="#241c05" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="lock-label">Signal verrouillé</div>
+
+    <h1 class="hero-title">Votre contrat de maintenance,<br><em>signé en quelques minutes.</em></h1>
+    <p class="hero-tag">TNT · Satellite · Décodeur Canal+ · Caméras · Clôture concertina — un dossier clair, une signature électronique, un envoi direct par WhatsApp.</p>
+
+    <div class="hero-chips">
+      <span class="hero-chip">4 visites préventives gratuites / an</span>
+      <span class="hero-chip">Signature électronique</span>
+      <span class="hero-chip">Réf. contrat automatique</span>
+    </div>
+
+    <a class="hero-cta" href="#startForm">Démarrer mon contrat →</a>
+    <div class="hero-foot">Abidjan &amp; environs · Intervention sur rendez-vous</div>
+  </div>
+  <div class="scroll-cue"></div>
+</section>
+
+<header id="startForm">
+  <div class="brand">
+    <div>
+      <div class="brand-name">Perfect Agence Service</div>
+      <div class="brand-sub">Contrat de maintenance TNT / Satellite &amp; SAV</div>
+    </div>
+    <div class="ref">
+      Réf. contrat
+      <b class="mono" id="refDisplay">—</b>
+    </div>
+  </div>
+  <div class="signal" id="signalMeter">
+    <div class="bar" data-i="1"></div>
+    <div class="bar" data-i="2"></div>
+    <div class="bar" data-i="3"></div>
+    <div class="bar" data-i="4"></div>
+    <span class="signal-label" id="signalLabel">Complétion du dossier : 0%</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- SECTION 1 : CLIENT -->
+  <div class="section">
+    <h2><span class="num">1</span> Informations du client</h2>
+    <p class="hint">Ces informations figureront sur le contrat officiel.</p>
+
+    <label class="first">Nom et prénoms</label>
+    <input type="text" id="clientNom" placeholder="Ex. Kouassi Jean-Baptiste">
+
+    <div class="row2">
+      <div>
+        <label>Téléphone / WhatsApp</label>
+        <input type="tel" id="clientTel" placeholder="07 XX XX XX XX">
+      </div>
+      <div>
+        <label>Ville</label>
+        <input type="text" id="clientVille" placeholder="Abidjan" value="Abidjan">
+      </div>
+    </div>
+
+    <label>Quartier / adresse d'intervention</label>
+    <input type="text" id="clientAdresse" placeholder="Ex. Abobo, Cité Fairmont, Rue 12">
+  </div>
+
+  <!-- SECTION 2 : TYPE DE CONTRAT -->
+  <div class="section">
+    <h2><span class="num">2</span> Type de contrat</h2>
+    <div class="radio-grid" id="typeContrat">
+      <label class="radio-opt" data-val="installation">
+        <input type="radio" name="typeContrat" value="installation">
+        <div>
+          <div class="opt-title">Installation neuve</div>
+          <div class="opt-sub">Pose et mise en service d'un équipement</div>
+        </div>
+      </label>
+      <label class="radio-opt" data-val="maintenance">
+        <input type="radio" name="typeContrat" value="maintenance">
+        <div>
+          <div class="opt-title">Maintenance périodique</div>
+          <div class="opt-sub">Contrôle et entretien programmés</div>
+        </div>
+      </label>
+      <label class="radio-opt" data-val="sav">
+        <input type="radio" name="typeContrat" value="sav">
+        <div>
+          <div class="opt-title">SAV / Dépannage</div>
+          <div class="opt-sub">Intervention ponctuelle sur panne</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="freq-wrap" id="freqWrap">
+      <div class="infobox">
+        🔁 <b>4 visites préventives par an</b> (1 par trimestre), incluses <b>gratuitement</b> dans le contrat.
+      </div>
+
+      <label>Formule de maintenance</label>
+      <div class="radio-grid" id="formuleContrat">
+        <label class="radio-opt" data-val="serenite">
+          <input type="radio" name="formuleContrat" value="serenite">
+          <div>
+            <div class="opt-title">Formule Sérénité</div>
+            <div class="opt-sub">Matériel défaillant pris en charge par Perfect Agence Service</div>
+          </div>
+        </label>
+        <label class="radio-opt" data-val="economique">
+          <input type="radio" name="formuleContrat" value="economique">
+          <div>
+            <div class="opt-title">Formule Économique</div>
+            <div class="opt-sub">Main d'œuvre incluse, matériel défaillant à la charge du client</div>
+          </div>
+        </label>
+      </div>
+
+      <div id="formulePriceWrap" style="display:none;">
+        <label id="formulePriceLabel">Tarif d'abonnement annuel</label>
+        <input type="number" id="formulePrice" placeholder="Montant en FCFA">
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 : PRESTATIONS -->
+  <div class="section">
+    <h2><span class="num">3</span> Prestations concernées</h2>
+    <p class="hint">Les tarifs d'installation Canal+ et TNT dépendent de votre zone et sont fixés par l'agence — cochez simplement ce qu'il vous faut.</p>
+
+    <label class="first">Zone d'intervention</label>
+    <select id="zone">
+      <option value="">— Sélectionnez votre zone —</option>
+      <option value="abobo">Abobo</option>
+      <option value="cocody">Cocody</option>
+      <option value="riviera">Riviera Palmeraie</option>
+      <option value="bingerville">Bingerville</option>
+      <option value="autre">Autre zone</option>
+    </select>
+    <div class="zone-note" id="zoneNote"></div>
+
+    <div id="prestationsList" style="margin-top:14px;">
+      <label class="check-opt locked" data-key="canal" data-pricekey="canal">
+        <input type="checkbox">
+        <div>
+          <div class="opt-title">Installation Canal+ (parabole + décodeur)</div>
+        </div>
+        <span class="price-locked mono" id="priceDisplay_canal">—</span>
+      </label>
+      <label class="check-opt locked" data-key="tnt" data-pricekey="tnt">
+        <input type="checkbox">
+        <div>
+          <div class="opt-title">Installation TNT (antenne terrestre)</div>
+        </div>
+        <span class="price-locked mono" id="priceDisplay_tnt">—</span>
+      </label>
+      <label class="check-opt" data-key="cablage">
+        <input type="checkbox">
+        <div>
+          <div class="opt-title">Câblage électrique</div>
+        </div>
+        <span class="price-locked mono devis">Sur devis</span>
+      </label>
+      <label class="check-opt" data-key="camera">
+        <input type="checkbox">
+        <div>
+          <div class="opt-title">Caméra de sécurité</div>
+        </div>
+        <span class="price-locked mono devis">Sur devis</span>
+      </label>
+      <label class="check-opt" data-key="concertina">
+        <input type="checkbox">
+        <div>
+          <div class="opt-title">Clôture concertina</div>
+        </div>
+        <span class="price-locked mono devis">Sur devis</span>
+      </label>
+      <label class="check-opt" data-key="autre">
+        <input type="checkbox">
+        <div>
+          <div class="opt-title">Autre prestation</div>
+        </div>
+        <span class="price-locked mono devis">Sur devis</span>
+      </label>
+    </div>
+    <div id="autreWrap" style="display:none;">
+      <label>Précisez la prestation "Autre"</label>
+      <input type="text" id="autreTexte" placeholder="Description">
+    </div>
+
+    <div class="total-line">
+      <span class="label">Montant total (hors devis)</span>
+      <span class="amount mono" id="totalAmount">0 FCFA</span>
+    </div>
+    <div class="devis-note" id="devisNote" style="display:none;"></div>
+  </div>
+
+  <!-- SECTION 4 : DETAILS CONTRAT -->
+  <div class="section">
+    <h2><span class="num">4</span> Détails &amp; conditions</h2>
+
+    <div class="row2">
+      <div>
+        <label class="first">Date de début</label>
+        <input type="date" id="dateDebut">
+      </div>
+      <div>
+        <label class="first">Durée du contrat</label>
+        <select id="duree">
+          <option value="Intervention unique">Intervention unique</option>
+          <option value="6 mois">6 mois</option>
+          <option value="12 mois" selected>12 mois</option>
+          <option value="24 mois">24 mois</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Délai d'intervention garanti (SAV)</label>
+    <select id="delaiSav">
+      <option value="24h">Sous 24 heures</option>
+      <option value="48h" selected>Sous 48 heures</option>
+      <option value="72h">Sous 72 heures</option>
+      <option value="Sur rendez-vous">Sur rendez-vous</option>
+    </select>
+
+    <label>Conditions particulières / garanties</label>
+    <textarea id="conditions" placeholder="Ex. Pièces non incluses, garantie main d'œuvre 3 mois, etc."></textarea>
+  </div>
+
+  <!-- SECTION 5 : SIGNATURE -->
+  <div class="section">
+    <h2><span class="num">5</span> Signature électronique</h2>
+    <p class="hint">Le client signe directement à l'écran avec le doigt ou la souris.</p>
+
+    <div id="padWrap">
+      <canvas id="sigCanvas" height="150"></canvas>
+      <div class="pad-placeholder" id="padPlaceholder">Signez ici</div>
+    </div>
+    <div class="sig-actions">
+      <button class="btn-ghost" id="clearSig">Effacer la signature</button>
+      <span class="mono" style="font-size:11px;color:var(--muted);" id="sigDate"></span>
+    </div>
+
+    <label class="consent">
+      <input type="checkbox" id="consentBox">
+      <span>Je certifie l'exactitude des informations ci-dessus et j'accepte les conditions du présent contrat.</span>
+    </label>
+  </div>
+
+  <!-- SECTION 6 : RECAP -->
+  <div class="section">
+    <h2><span class="num">6</span> Récapitulatif</h2>
+    <div id="recapBox">
+      <div class="empty">Remplissez le formulaire ci-dessus pour voir le récapitulatif.</div>
+    </div>
+  </div>
+
+</main>
+
+<div class="actionbar">
+  <button class="btn btn-pdf" id="btnPdf" disabled>⬇ Télécharger le PDF</button>
+  <button class="btn btn-wa" id="btnWa" disabled>✆ Envoyer via WhatsApp</button>
+</div>
+<div class="status" id="statusMsg"></div>
+
+<script>
+/* ============ CONFIGURATION ============
+   Remplacez ce numéro par le numéro WhatsApp Business réel
+   de Perfect Agence Service (format international, sans + ni espaces).
+   Exemple pour la Côte d'Ivoire : 225XXXXXXXXXX
+*/
+const WHATSAPP_BUSINESS_NUMBER = "2250707470833";
+
+/* Grille tarifaire par zone (FCFA) — modifiable uniquement ici, jamais par le client.
+   canal = Installation Canal+ (parabole + décodeur)
+   tnt   = Installation TNT (antenne terrestre) */
+const PRICING_TABLE = {
+  abobo:    { label: "Abobo",             canal: 8000,  tnt: 7000  },
+  cocody:   { label: "Cocody",            canal: 10000, tnt: 10000 },
+  riviera:  { label: "Riviera Palmeraie", canal: 15000, tnt: 15000 },
+  bingerville: { label: "Bingerville",    canal: 15000, tnt: 15000 },
+};
+
+/* ---------- Référence contrat ---------- */
+const today = new Date();
+const refId = "PAS-" + today.getFullYear().toString() +
+  String(today.getMonth()+1).padStart(2,"0") +
+  String(today.getDate()).padStart(2,"0") + "-" +
+  Math.floor(1000+Math.random()*9000);
+document.getElementById("refDisplay").textContent = refId;
+document.getElementById("dateDebut").valueAsDate = today;
+
+/* ---------- Radio contrat type ---------- */
+const typeRadios = document.querySelectorAll("#typeContrat .radio-opt");
+typeRadios.forEach(opt=>{
+  opt.addEventListener("click", ()=>{
+    typeRadios.forEach(o=>o.classList.remove("active"));
+    opt.classList.add("active");
+    opt.querySelector("input").checked = true;
+    document.getElementById("freqWrap").classList.toggle("show", opt.dataset.val === "maintenance");
+    refreshAll();
+  });
+});
+
+/* ---------- Radio formule (maintenance) ---------- */
+const formuleRadios = document.querySelectorAll("#formuleContrat .radio-opt");
+const formulePrices = { serenite: "", economique: "" }; // mémorise le tarif saisi par formule
+const formulePriceInput = document.getElementById("formulePrice");
+const formulePriceLabel = document.getElementById("formulePriceLabel");
+const formulePriceWrap = document.getElementById("formulePriceWrap");
+const formuleLabels = { serenite: "Formule Sérénité", economique: "Formule Économique" };
+
+formuleRadios.forEach(opt=>{
+  opt.addEventListener("click", ()=>{
+    formuleRadios.forEach(o=>o.classList.remove("active"));
+    opt.classList.add("active");
+    opt.querySelector("input").checked = true;
+    const val = opt.dataset.val;
+    formulePriceWrap.style.display = "block";
+    formulePriceLabel.textContent = "Tarif d'abonnement annuel — " + formuleLabels[val];
+    formulePriceInput.value = formulePrices[val];
+    refreshAll();
+  });
+});
+formulePriceInput.addEventListener("input", ()=>{
+  const checked = document.querySelector('input[name="formuleContrat"]:checked');
+  if(checked) formulePrices[checked.value] = formulePriceInput.value;
+  refreshAll();
+});
+
+/* ---------- Zone & prix verrouillés ---------- */
+const zoneSelect = document.getElementById("zone");
+const zoneNote = document.getElementById("zoneNote");
+const lockedKeys = ["canal","tnt"];
+
+function currentZonePricing(){
+  const z = zoneSelect.value;
+  return z && PRICING_TABLE[z] ? PRICING_TABLE[z] : null;
+}
+function updateLockedPrices(){
+  const pricing = currentZonePricing();
+  lockedKeys.forEach(key=>{
+    const display = document.getElementById("priceDisplay_" + key);
+    if(!pricing){
+      display.textContent = zoneSelect.value === "autre" ? "Sur devis" : "—";
+    } else {
+      display.textContent = formatFCFA(pricing[key]);
+    }
+  });
+  if(zoneSelect.value === "autre"){
+    zoneNote.textContent = "Zone hors grille : le tarif vous sera confirmé par l'agence.";
+  } else if(!zoneSelect.value){
+    zoneNote.textContent = "Sélectionnez une zone pour afficher les tarifs Canal+ et TNT.";
+  } else {
+    zoneNote.textContent = "";
+  }
+}
+zoneSelect.addEventListener("change", ()=>{ updateLockedPrices(); refreshAll(); });
+updateLockedPrices();
+
+/* ---------- Prestations checkboxes ---------- */
+const checkOpts = document.querySelectorAll(".check-opt");
+checkOpts.forEach(opt=>{
+  const cb = opt.querySelector("input[type=checkbox]");
+  cb.addEventListener("change", ()=>{
+    opt.classList.toggle("active", cb.checked);
+    if(opt.dataset.key === "autre"){
+      document.getElementById("autreWrap").style.display = cb.checked ? "block" : "none";
+    }
+    refreshAll();
+  });
+  opt.querySelectorAll(".price").forEach(p=>p.addEventListener("input", refreshAll));
+});
+
+/* ---------- Total ---------- */
+function computeTotal(){
+  let total = 0;
+  const pricing = currentZonePricing();
+  lockedKeys.forEach(key=>{
+    const opt = document.querySelector('.check-opt[data-key="'+key+'"]');
+    const cb = opt.querySelector("input[type=checkbox]");
+    if(cb.checked && pricing) total += pricing[key];
+  });
+  const formuleChecked = document.querySelector('input[name="formuleContrat"]:checked');
+  if(formuleChecked && formulePriceInput.value){
+    total += parseFloat(formulePriceInput.value) || 0;
+  }
+  return total;
+}
+function formatFCFA(n){
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " FCFA";
+}
+
+/* ---------- Signature pad ---------- */
+const canvas = document.getElementById("sigCanvas");
+const ctx = canvas.getContext("2d");
+const placeholder = document.getElementById("padPlaceholder");
+let drawing = false, hasSignature = false;
+
+function resizeCanvas(){
+  const ratio = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * ratio;
+  canvas.height = 150 * ratio;
+  ctx.scale(ratio, ratio);
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#0f2e38";
+}
+window.addEventListener("resize", ()=>{ if(!hasSignature) resizeCanvas(); });
+resizeCanvas();
+
+function getPos(e){
+  const rect = canvas.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return {x: t.clientX - rect.left, y: t.clientY - rect.top};
+}
+function startDraw(e){
+  drawing = true;
+  hasSignature = true;
+  placeholder.style.display = "none";
+  const p = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+  e.preventDefault();
+}
+function moveDraw(e){
+  if(!drawing) return;
+  const p = getPos(e);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  e.preventDefault();
+}
+function endDraw(){
+  drawing = false;
+  document.getElementById("sigDate").textContent = hasSignature ? ("Signé le " + new Date().toLocaleDateString("fr-FR")) : "";
+  refreshAll();
+}
+canvas.addEventListener("mousedown", startDraw);
+canvas.addEventListener("mousemove", moveDraw);
+canvas.addEventListener("mouseup", endDraw);
+canvas.addEventListener("mouseleave", endDraw);
+canvas.addEventListener("touchstart", startDraw, {passive:false});
+canvas.addEventListener("touchmove", moveDraw, {passive:false});
+canvas.addEventListener("touchend", endDraw);
+
+document.getElementById("clearSig").addEventListener("click", ()=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hasSignature = false;
+  placeholder.style.display = "flex";
+  document.getElementById("sigDate").textContent = "";
+  refreshAll();
+});
+
+document.getElementById("consentBox").addEventListener("change", refreshAll);
+
+/* ---------- Collecte des données ---------- */
+function getData(){
+  const type = document.querySelector('input[name="typeContrat"]:checked');
+  const pricing = currentZonePricing();
+  const prestations = [];
+  checkOpts.forEach(opt=>{
+    const cb = opt.querySelector("input[type=checkbox]");
+    if(cb.checked){
+      let label = opt.querySelector(".opt-title").textContent;
+      if(opt.dataset.key === "autre"){
+        const t = document.getElementById("autreTexte").value.trim();
+        if(t) label = t;
+      }
+      const key = opt.dataset.key;
+      let price = null;
+      if(lockedKeys.includes(key) && pricing) price = pricing[key];
+      prestations.push({label, price, devis: !(lockedKeys.includes(key) && pricing)});
+    }
+  });
+  const formule = document.querySelector('input[name="formuleContrat"]:checked');
+  const isMaintenance = document.getElementById("freqWrap").classList.contains("show");
+  const needsZone = lockedKeys.some(key=>{
+    const opt = document.querySelector('.check-opt[data-key="'+key+'"]');
+    return opt.querySelector("input[type=checkbox]").checked;
+  });
+  return {
+    zoneRaw: zoneSelect.value,
+    needsZone,
+    zone: zoneSelect.value ? (PRICING_TABLE[zoneSelect.value] ? PRICING_TABLE[zoneSelect.value].label : "Autre zone") : null,
+    nom: document.getElementById("clientNom").value.trim(),
+    tel: document.getElementById("clientTel").value.trim(),
+    ville: document.getElementById("clientVille").value.trim(),
+    adresse: document.getElementById("clientAdresse").value.trim(),
+    type: type ? type.value : null,
+    typeLabel: type ? type.closest(".radio-opt").querySelector(".opt-title").textContent : null,
+    frequence: isMaintenance ? "Trimestrielle — 4 visites préventives gratuites par an" : null,
+    formule: isMaintenance && formule ? formule.value : null,
+    formuleLabel: isMaintenance && formule ? formule.closest(".radio-opt").querySelector(".opt-title").textContent : null,
+    formulePrice: isMaintenance && formule && formulePriceInput.value ? parseFloat(formulePriceInput.value) : null,
+    isMaintenance,
+    prestations,
+    total: computeTotal(),
+    dateDebut: document.getElementById("dateDebut").value,
+    duree: document.getElementById("duree").value,
+    delaiSav: document.getElementById("delaiSav").value,
+    conditions: document.getElementById("conditions").value.trim(),
+    consent: document.getElementById("consentBox").checked,
+    hasSignature
+  };
+}
+
+/* ---------- Validation minimale ---------- */
+function isComplete(d){
+  const formuleOk = d.isMaintenance ? !!d.formule : true;
+  const zoneOk = !d.needsZone || !!d.zoneRaw;
+  return d.nom && d.tel && d.type && d.prestations.length>0 && formuleOk && zoneOk && d.consent && d.hasSignature;
+}
+
+/* ---------- Progress meter (4 barres) ---------- */
+function refreshSignal(d){
+  let score = 0;
+  if(d.nom && d.tel && d.adresse) score++;
+  if(d.type && d.prestations.length>0) score++;
+  if(d.dateDebut && d.duree) score++;
+  if(d.consent && d.hasSignature) score++;
+  document.querySelectorAll("#signalMeter .bar").forEach((bar,i)=>{
+    bar.classList.toggle("on", i < score);
+  });
+  document.getElementById("signalLabel").textContent = "Complétion du dossier : " + (score*25) + "%";
+}
+
+/* ---------- Récapitulatif ---------- */
+function refreshRecap(d){
+  const box = document.getElementById("recapBox");
+  if(!d.nom && !d.type && d.prestations.length===0){
+    box.innerHTML = '<div class="empty">Remplissez le formulaire ci-dessus pour voir le récapitulatif.</div>';
+    return;
+  }
+  let html = "";
+  html += line("Client", d.nom || "—");
+  html += line("Téléphone", d.tel || "—");
+  html += line("Adresse", (d.adresse || "—") + (d.ville ? ", " + d.ville : ""));
+  html += line("Type de contrat", d.typeLabel || "—");
+  if(d.zone) html += line("Zone d'intervention", d.zone);
+  if(d.frequence) html += line("Visites préventives", d.frequence);
+  if(d.formuleLabel) html += line("Formule choisie", d.formuleLabel);
+  if(d.formulePrice) html += line("Abonnement annuel (formule)", formatFCFA(d.formulePrice));
+  const prestationLabels = d.prestations.map(p => p.devis ? p.label + " (sur devis)" : p.label);
+  html += line("Prestations", prestationLabels.length ? prestationLabels.join(", ") : "—");
+  html += line("Montant total (hors devis)", formatFCFA(d.total));
+  html += line("Début", d.dateDebut || "—");
+  html += line("Durée", d.duree || "—");
+  html += line("Délai SAV garanti", d.delaiSav || "—");
+  html += line("Signature", d.hasSignature ? "✓ Signée" : "En attente");
+  box.innerHTML = html;
+}
+function line(a,b){
+  return '<div class="rline"><span>'+a+'</span><span>'+escapeHtml(b)+'</span></div>';
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+}
+
+/* ---------- Boutons ---------- */
+function refreshButtons(d){
+  const ok = isComplete(d);
+  document.getElementById("btnPdf").disabled = !ok;
+  document.getElementById("btnWa").disabled = !ok;
+  document.getElementById("statusMsg").textContent = ok ? "" : "Complétez le nom, téléphone, la zone (si Canal+/TNT coché), une prestation, la signature et la case de consentement pour continuer.";
+}
+
+function refreshAll(){
+  const d = getData();
+  refreshSignal(d);
+  refreshRecap(d);
+  refreshButtons(d);
+  document.getElementById("totalAmount").textContent = formatFCFA(d.total);
+  const devisItems = d.prestations.filter(p=>p.devis).map(p=>p.label);
+  const devisNote = document.getElementById("devisNote");
+  if(devisItems.length){
+    devisNote.style.display = "block";
+    devisNote.textContent = "📋 Sur devis (tarif à confirmer par l'agence) : " + devisItems.join(", ");
+  } else {
+    devisNote.style.display = "none";
+  }
+}
+
+/* ---------- Ecoute globale sur les champs texte ---------- */
+["clientNom","clientTel","clientVille","clientAdresse","dateDebut","duree","delaiSav","conditions","autreTexte","frequence"]
+  .forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener("input", refreshAll);
+    if(el) el.addEventListener("change", refreshAll);
+  });
+
+/* ---------- Génération PDF ---------- */
+function buildPdf(d){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({unit:"mm", format:"a4"});
+  const marginX = 18;
+  let y = 20;
+
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(16);
+  doc.text("PERFECT AGENCE SERVICE", marginX, y);
+  doc.setFontSize(10);
+  doc.setFont("helvetica","normal");
+  y += 6;
+  doc.text("Contrat de maintenance TNT / Satellite & SAV — Réf. " + refId, marginX, y);
+  y += 4;
+  doc.setDrawColor(200);
+  doc.line(marginX, y, 210-marginX, y);
+  y += 10;
+
+  function field(label, value){
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(10);
+    doc.text(label, marginX, y);
+    doc.setFont("helvetica","normal");
+    doc.text(String(value || "-"), marginX + 55, y);
+    y += 7;
+  }
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica","bold");
+  doc.text("1. Client", marginX, y); y += 7;
+  field("Nom :", d.nom);
+  field("Téléphone :", d.tel);
+  field("Adresse :", (d.adresse||"") + (d.ville ? ", "+d.ville : ""));
+  y += 3;
+
+  doc.setFont("helvetica","bold");
+  doc.text("2. Contrat", marginX, y); y += 7;
+  field("Type :", d.typeLabel);
+  if(d.zone) field("Zone d'intervention :", d.zone);
+  if(d.frequence) field("Visites préventives :", d.frequence);
+  if(d.formuleLabel){
+    field("Formule choisie :", d.formuleLabel);
+    doc.setFontSize(9);
+    doc.setFont("helvetica","italic");
+    const clause = d.formule === "serenite"
+      ? "Le matériel défaillant constaté lors des visites est pris en charge par Perfect Agence Service."
+      : "La main d'œuvre est incluse ; le remplacement du matériel défaillant reste à la charge du client.";
+    const clauseLines = doc.splitTextToSize(clause, 210 - marginX*2 - 4);
+    doc.text(clauseLines, marginX + 4, y);
+    y += clauseLines.length * 5 + 2;
+    doc.setFontSize(10);
+    if(d.formulePrice){
+      field("Abonnement annuel :", formatFCFA(d.formulePrice));
+    }
+  }
+  field("Date de début :", d.dateDebut);
+  field("Durée :", d.duree);
+  field("Délai SAV garanti :", d.delaiSav);
+  y += 3;
+
+  doc.setFont("helvetica","bold");
+  doc.text("3. Prestations", marginX, y); y += 7;
+  doc.setFont("helvetica","normal");
+  d.prestations.forEach(p=>{
+    const priceText = p.devis ? "sur devis" : formatFCFA(p.price);
+    doc.text("• " + p.label + "  —  " + priceText, marginX + 2, y);
+    y += 6;
+  });
+  y += 2;
+  doc.setFont("helvetica","bold");
+  doc.text("Montant total (hors devis) : " + formatFCFA(d.total), marginX, y);
+  y += 10;
+
+  if(d.conditions){
+    doc.setFont("helvetica","bold");
+    doc.text("4. Conditions particulières", marginX, y); y += 7;
+    doc.setFont("helvetica","normal");
+    const lines = doc.splitTextToSize(d.conditions, 210 - marginX*2);
+    doc.text(lines, marginX, y);
+    y += lines.length * 5 + 6;
+  }
+
+  if(y > 230) { doc.addPage(); y = 20; }
+
+  doc.setFont("helvetica","bold");
+  doc.text("5. Signature électronique du client", marginX, y);
+  y += 6;
+  const imgData = canvas.toDataURL("image/png");
+  doc.addImage(imgData, "PNG", marginX, y, 70, 30);
+  y += 34;
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(9);
+  doc.text("Signé électroniquement le " + new Date().toLocaleDateString("fr-FR") + " — document généré via l'application Perfect Agence Service.", marginX, y);
+
+  return doc;
+}
+
+document.getElementById("btnPdf").addEventListener("click", ()=>{
+  const d = getData();
+  if(!isComplete(d)) return;
+  const doc = buildPdf(d);
+  doc.save("Contrat_" + refId + ".pdf");
+  document.getElementById("statusMsg").innerHTML = '<span class="ok">✓ PDF téléchargé. Joignez-le au message WhatsApp qui va s\'ouvrir.</span>';
+});
+
+/* ---------- Envoi WhatsApp ---------- */
+document.getElementById("btnWa").addEventListener("click", ()=>{
+  const d = getData();
+  if(!isComplete(d)) return;
+
+  let msg = "📄 *Nouveau contrat — Perfect Agence Service*\n";
+  msg += "Réf : " + refId + "\n\n";
+  msg += "👤 Client : " + d.nom + "\n";
+  msg += "📞 Tél : " + d.tel + "\n";
+  msg += "📍 Adresse : " + (d.adresse||"-") + (d.ville ? ", "+d.ville : "") + "\n\n";
+  msg += "🛠 Type : " + d.typeLabel + "\n";
+  if(d.zone) msg += "📍 Zone : " + d.zone + "\n";
+  if(d.frequence) msg += "🔁 " + d.frequence + "\n";
+  if(d.formuleLabel) msg += "📦 Formule : " + d.formuleLabel + "\n";
+  if(d.formulePrice) msg += "💳 Abonnement annuel : " + formatFCFA(d.formulePrice) + "\n";
+  msg += "📋 Prestations : " + d.prestations.map(p => p.devis ? p.label+" (sur devis)" : p.label+" ("+formatFCFA(p.price)+")").join(", ") + "\n";
+  msg += "💰 Montant total (hors devis) : " + formatFCFA(d.total) + "\n";
+  msg += "📅 Début : " + d.dateDebut + " | Durée : " + d.duree + "\n";
+  msg += "⏱ Délai SAV : " + d.delaiSav + "\n";
+  if(d.conditions) msg += "📝 Conditions : " + d.conditions + "\n";
+  msg += "\n✅ Contrat signé électroniquement.\n";
+  msg += "⚠️ Merci de joindre le PDF téléchargé à ce message.";
+
+  const url = "https://wa.me/" + WHATSAPP_BUSINESS_NUMBER + "?text=" + encodeURIComponent(msg);
+  window.open(url, "_blank");
+});
+
+refreshAll();
+</script>
+</body>
+</html>
