@@ -438,6 +438,12 @@
       </label>
     </div>
 
+    <div class="freq-wrap" id="installWrap">
+      <div class="infobox">
+        🛡️ <b>Garantie de 3 mois</b> sur la main d'œuvre. Passé ce délai, vous pouvez nous solliciter à tout moment pour une nouvelle intervention, ou souscrire un <b>contrat de maintenance annuel</b> pour bénéficier d'une assistance continue toute l'année.
+      </div>
+    </div>
+
     <div class="freq-wrap" id="freqWrap">
       <div class="infobox">
         🔁 <b>4 visites préventives par an</b> (1 par trimestre), incluses <b>gratuitement</b> dans le contrat.
@@ -626,6 +632,9 @@ const PRICING_TABLE = {
   bingerville: { label: "Bingerville",    canal: 15000, tnt: 15000 },
 };
 
+/* Conditions standard pour une installation neuve ou un SAV — modifiable ici uniquement */
+const GARANTIE_INSTALLATION_MOIS = 3;
+
 /* ---------- Référence contrat ---------- */
 const today = new Date();
 const refId = "PAS-" + today.getFullYear().toString() +
@@ -643,6 +652,7 @@ typeRadios.forEach(opt=>{
     opt.classList.add("active");
     opt.querySelector("input").checked = true;
     document.getElementById("freqWrap").classList.toggle("show", opt.dataset.val === "maintenance");
+    document.getElementById("installWrap").classList.toggle("show", opt.dataset.val === "installation" || opt.dataset.val === "sav");
     refreshAll();
   });
 });
@@ -820,6 +830,10 @@ function getData(){
   });
   const formule = document.querySelector('input[name="formuleContrat"]:checked');
   const isMaintenance = document.getElementById("freqWrap").classList.contains("show");
+  const isInstallation = document.getElementById("installWrap").classList.contains("show");
+  const garantieText = isInstallation
+    ? "Garantie de " + GARANTIE_INSTALLATION_MOIS + " mois sur la main d'œuvre (assistance continue possible via un contrat de maintenance annuel)"
+    : null;
   const needsZone = lockedKeys.some(key=>{
     const opt = document.querySelector('.check-opt[data-key="'+key+'"]');
     return opt.querySelector("input[type=checkbox]").checked;
@@ -839,6 +853,8 @@ function getData(){
     formuleLabel: isMaintenance && formule ? formule.closest(".radio-opt").querySelector(".opt-title").textContent : null,
     formulePrice: isMaintenance && formule && formulePriceInput.value ? parseFloat(formulePriceInput.value) : null,
     isMaintenance,
+    isInstallation,
+    garantieText,
     prestations,
     total: computeTotal(),
     dateDebut: document.getElementById("dateDebut").value,
@@ -884,6 +900,7 @@ function refreshRecap(d){
   html += line("Type de contrat", d.typeLabel || "—");
   if(d.zone) html += line("Zone d'intervention", d.zone);
   if(d.frequence) html += line("Visites préventives", d.frequence);
+  if(d.garantieText) html += line("Garantie & assistance", d.garantieText);
   if(d.formuleLabel) html += line("Formule choisie", d.formuleLabel);
   if(d.formulePrice) html += line("Abonnement annuel (formule)", formatFCFA(d.formulePrice));
   const prestationLabels = d.prestations.map(p => p.devis ? p.label + " (sur devis)" : p.label);
@@ -975,6 +992,7 @@ function buildPdf(d){
   field("Type :", d.typeLabel);
   if(d.zone) field("Zone d'intervention :", d.zone);
   if(d.frequence) field("Visites préventives :", d.frequence);
+  if(d.garantieText) field("Garantie & assistance :", d.garantieText);
   if(d.formuleLabel){
     field("Formule choisie :", d.formuleLabel);
     doc.setFontSize(9);
@@ -1053,6 +1071,7 @@ document.getElementById("btnWa").addEventListener("click", ()=>{
   msg += "🛠 Type : " + d.typeLabel + "\n";
   if(d.zone) msg += "📍 Zone : " + d.zone + "\n";
   if(d.frequence) msg += "🔁 " + d.frequence + "\n";
+  if(d.garantieText) msg += "🛡️ " + d.garantieText + "\n";
   if(d.formuleLabel) msg += "📦 Formule : " + d.formuleLabel + "\n";
   if(d.formulePrice) msg += "💳 Abonnement annuel : " + formatFCFA(d.formulePrice) + "\n";
   msg += "📋 Prestations : " + d.prestations.map(p => p.devis ? p.label+" (sur devis)" : p.label+" ("+formatFCFA(p.price)+")").join(", ") + "\n";
