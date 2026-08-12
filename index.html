@@ -384,6 +384,9 @@
     <div class="bar" data-i="4"></div>
     <span class="signal-label" id="signalLabel">Complétion du dossier : 0%</span>
   </div>
+  <div style="margin-top:12px; background:linear-gradient(135deg,#3a2a08,#241a05); border:1px solid var(--gold); border-radius:10px; padding:10px 14px; font-size:12.5px; color:var(--gold-light); text-align:center; font-weight:600;">
+    ⚠️ Frais de validation obligatoire : <strong>20% du montant à régler pour valider l'intervention</strong>
+  </div>
 </header>
 
 <main>
@@ -544,6 +547,19 @@
       <span class="amount mono" id="totalAmount">0 FCFA</span>
     </div>
     <div class="devis-note" id="devisNote" style="display:none;"></div>
+
+    <label style="margin-top:14px;">Remise accordée (optionnel)</label>
+    <input type="number" id="remise" placeholder="Ex. 2000 (montant en FCFA)" value="0">
+
+    <div id="montantDetail" style="margin-top:14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:14px 16px;">
+      <div class="total-line" style="border:none; padding:4px 0;"><span class="label" style="font-size:12.5px;">Remise appliquée</span><span class="mono" id="remiseAmount" style="font-size:13px; color:var(--red);">- 0 FCFA</span></div>
+      <div class="total-line" style="border:none; padding:4px 0;"><span class="label" style="font-size:12.5px;">Montant net</span><span class="mono" id="netAmount" style="font-size:14px; font-weight:700;">0 FCFA</span></div>
+      <div class="total-line" style="border:none; padding:8px 0 4px; border-top:1px dashed var(--line); margin-top:6px;">
+        <span class="label" style="font-size:13px; font-weight:700; color:var(--amber);">⚠️ Acompte 20% à régler maintenant</span>
+        <span class="mono" id="acompteAmount" style="font-size:16px; font-weight:800; color:var(--amber);">0 FCFA</span>
+      </div>
+      <div class="total-line" style="border:none; padding:4px 0;"><span class="label" style="font-size:12.5px;">Solde après intervention</span><span class="mono" id="soldeAmount" style="font-size:13px;">0 FCFA</span></div>
+    </div>
   </div>
 
   <!-- SECTION 4 : DETAILS CONTRAT -->
@@ -611,6 +627,7 @@
 <div class="actionbar">
   <button class="btn btn-pdf" id="btnPdf" disabled>⬇ Télécharger le PDF</button>
   <button class="btn btn-wa" id="btnWa" disabled>✆ Envoyer via WhatsApp</button>
+  <button class="btn btn-wa" id="btnLien" style="background:var(--green);" disabled>🔗 Envoyer le lien au client</button>
 </div>
 <div class="status" id="statusMsg"></div>
 
@@ -745,6 +762,13 @@ function computeTotal(){
 function formatFCFA(n){
   return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " FCFA";
 }
+function computeMontants(d){
+  const remise = Math.min(d.remise || 0, d.total);
+  const net = Math.max(d.total - remise, 0);
+  const acompte = Math.round(net * 0.2);
+  const solde = net - acompte;
+  return { remise, net, acompte, solde };
+}
 
 /* ---------- Signature pad ---------- */
 const canvas = document.getElementById("sigCanvas");
@@ -857,6 +881,7 @@ function getData(){
     garantieText,
     prestations,
     total: computeTotal(),
+    remise: parseFloat(document.getElementById("remise").value) || 0,
     dateDebut: document.getElementById("dateDebut").value,
     duree: document.getElementById("duree").value,
     delaiSav: document.getElementById("delaiSav").value,
@@ -871,6 +896,19 @@ function isComplete(d){
   const formuleOk = d.isMaintenance ? !!d.formule : true;
   const zoneOk = !d.needsZone || !!d.zoneRaw;
   return d.nom && d.tel && d.type && d.prestations.length>0 && formuleOk && zoneOk && d.consent && d.hasSignature;
+}
+function isReadyForLink(d){
+  const formuleOk = d.isMaintenance ? !!d.formule : true;
+  const zoneOk = !d.needsZone || !!d.zoneRaw;
+  return d.nom && d.tel && d.type && d.prestations.length>0 && formuleOk && zoneOk;
+}
+function formaterNumeroWhatsapp(tel){
+  let clean = String(tel).replace(/[^0-9]/g,'');
+  if(clean.startsWith('225')) clean = clean.slice(3);
+  return '225' + clean;
+}
+function toBase64Url(str){
+  return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 
 /* ---------- Progress meter (4 barres) ---------- */
@@ -924,6 +962,7 @@ function refreshButtons(d){
   const ok = isComplete(d);
   document.getElementById("btnPdf").disabled = !ok;
   document.getElementById("btnWa").disabled = !ok;
+  document.getElementById("btnLien").disabled = !isReadyForLink(d);
   document.getElementById("statusMsg").textContent = ok ? "" : "Complétez le nom, téléphone, la zone (si Canal+/TNT coché), une prestation, la signature et la case de consentement pour continuer.";
 }
 
@@ -933,6 +972,11 @@ function refreshAll(){
   refreshRecap(d);
   refreshButtons(d);
   document.getElementById("totalAmount").textContent = formatFCFA(d.total);
+  const m = computeMontants(d);
+  document.getElementById("remiseAmount").textContent = "- " + formatFCFA(m.remise);
+  document.getElementById("netAmount").textContent = formatFCFA(m.net);
+  document.getElementById("acompteAmount").textContent = formatFCFA(m.acompte);
+  document.getElementById("soldeAmount").textContent = formatFCFA(m.solde);
   const devisItems = d.prestations.filter(p=>p.devis).map(p=>p.label);
   const devisNote = document.getElementById("devisNote");
   if(devisItems.length){
@@ -944,7 +988,7 @@ function refreshAll(){
 }
 
 /* ---------- Ecoute globale sur les champs texte ---------- */
-["clientNom","clientTel","clientVille","clientAdresse","dateDebut","duree","delaiSav","conditions","autreTexte","frequence"]
+["clientNom","clientTel","clientVille","clientAdresse","dateDebut","duree","delaiSav","conditions","autreTexte","frequence","remise"]
   .forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.addEventListener("input", refreshAll);
@@ -1084,6 +1128,32 @@ document.getElementById("btnWa").addEventListener("click", ()=>{
 
   const url = "https://wa.me/" + WHATSAPP_BUSINESS_NUMBER + "?text=" + encodeURIComponent(msg);
   window.open(url, "_blank");
+});
+
+/* ---------- Envoi du lien de signature au client (sans base de données) ---------- */
+document.getElementById("btnLien").addEventListener("click", ()=>{
+  const d = getData();
+  if(!isReadyForLink(d)) return;
+  const m = computeMontants(d);
+
+  const payload = {
+    ref: refId,
+    n: d.nom, t: d.tel, v: d.ville, a: d.adresse,
+    ty: d.typeLabel, z: d.zone, fr: d.frequence,
+    ga: d.garantieText, fl: d.formuleLabel, fp: d.formulePrice,
+    pr: d.prestations.map(p => [p.label, p.price, p.devis ? 1 : 0]),
+    to: d.total, re: m.remise, ne: m.net, ac: m.acompte, so: m.solde,
+    db: d.dateDebut, du: d.duree, ds: d.delaiSav, co: d.conditions
+  };
+  const encoded = toBase64Url(JSON.stringify(payload));
+  const lien = "https://djiegbochristianhamed-maker.github.io/Perfect-agence-contrat/lecture-contrat.html?d=" + encoded;
+
+  const msgClient = "Bonjour " + d.nom + " 👋 Perfect Agence Service ici.\n\n" +
+    "Voici votre contrat à consulter et signer : " + lien + "\n\n" +
+    "Ouvrez le lien, un seul clic suffit pour signer — vous recevrez automatiquement votre copie.\n\nMerci !";
+
+  const url2 = "https://wa.me/" + formaterNumeroWhatsapp(d.tel) + "?text=" + encodeURIComponent(msgClient);
+  window.open(url2, "_blank");
 });
 
 refreshAll();
