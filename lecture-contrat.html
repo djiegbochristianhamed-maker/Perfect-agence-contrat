@@ -74,6 +74,10 @@
     display:block; margin:10px auto 0; font-size:13px; color:var(--navy);
     background:none; border:none; font-weight:700; cursor:pointer; text-decoration:underline;
   }
+  .certif-text{
+    font-size:12px; color:var(--muted); text-align:center; line-height:1.5;
+    padding:0 10px; margin-bottom:16px;
+  }
 
   .btn-accept{
     width:100%; padding:20px; border-radius:14px; border:none;
@@ -93,6 +97,52 @@
   .result-box h3{ font-family:'Space Grotesk', sans-serif; font-size:22px; margin-bottom:8px; }
   .result-box p{ font-size:13.5px; color:rgba(255,255,255,0.7); margin-bottom:20px; }
   .state-box{ text-align:center; padding:60px 20px; font-size:14px; color:var(--muted); }
+
+  /* ---------- Animations d'entrée ---------- */
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(16px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .greet, .card, .montant-card, .sig-card, .certif-text, .btn-accept{
+    animation: fadeUp .6s cubic-bezier(.22,.61,.36,1) both;
+  }
+  .greet{ animation-delay:.02s; }
+  .card{ animation-delay:.10s; }
+  .montant-card{ animation-delay:.20s; }
+  .sig-card{ animation-delay:.30s; }
+  .certif-text{ animation-delay:.38s; }
+  .btn-accept{ animation-delay:.44s; }
+
+  @keyframes glowPulse{
+    0%, 100%{ box-shadow:0 0 0 0 rgba(224,151,47,0.35); }
+    50%{ box-shadow:0 0 0 8px rgba(224,151,47,0); }
+  }
+  .acompte-box{ animation: glowPulse 2.6s ease-in-out infinite; }
+
+  .btn-accept{ transform:scale(1); }
+  .btn-accept.ready{ animation: fadeUp .6s cubic-bezier(.22,.61,.36,1) both, readyPop .4s ease .05s; }
+  @keyframes readyPop{
+    0%{ transform:scale(1); }
+    40%{ transform:scale(1.035); }
+    100%{ transform:scale(1); }
+  }
+  .btn-accept:active:not(:disabled){ transform:scale(0.97); }
+
+  @keyframes resultIn{
+    from{ opacity:0; transform:scale(.94); }
+    to{ opacity:1; transform:scale(1); }
+  }
+  .result-box{ animation: resultIn .5s cubic-bezier(.22,.61,.36,1) both; }
+  @keyframes emojiPop{
+    0%{ transform:scale(0); }
+    60%{ transform:scale(1.25); }
+    100%{ transform:scale(1); }
+  }
+  .result-box .emoji{ display:inline-block; animation: emojiPop .55s cubic-bezier(.34,1.56,.64,1) .15s both; }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{ animation-duration:.001ms !important; animation-iteration-count:1 !important; }
+  }
 </style>
 </head>
 <body>
@@ -160,7 +210,7 @@ function afficherContrat(){
         <span class="k">Prestations</span>
         <span class="prest-list">${prestationsHtml}</span>
       </div>
-      ${data.db ? `<div class="row"><span class="k">Début</span><span class="v">${esc(data.db)}</span></div>` : ''}
+      ${data.db ? `<div class="row"><span class="k">Début</span><span class="v">${esc(data.db)}${data.hr ? ' à '+esc(data.hr) : ''}</span></div>` : ''}
       ${data.du ? `<div class="row"><span class="k">Durée</span><span class="v">${esc(data.du)}</span></div>` : ''}
       ${data.ds ? `<div class="row"><span class="k">Délai SAV</span><span class="v">${esc(data.ds)}</span></div>` : ''}
     </div>
@@ -172,7 +222,7 @@ function afficherContrat(){
       ${data.re > 0 ? `<div style="font-size:12px; color:var(--gold-light);">Remise appliquée : − ${formatFCFA(data.re)}</div>` : ''}
 
       <div class="acompte-box">
-        <div class="lbl2">⚠️ ACOMPTE 20% À RÉGLER MAINTENANT</div>
+        <div class="lbl2">⚠️ FRAIS DE VALIDATION (20%) — À RÉGLER MAINTENANT</div>
         <div class="val2">${formatFCFA(data.ac)}</div>
       </div>
       <div class="solde-line">Solde de ${formatFCFA(data.so)} à régler après l'intervention</div>
@@ -182,7 +232,11 @@ function afficherContrat(){
       <div class="titre">✍️ Votre signature</div>
       <div class="hint">Faites un trait avec le doigt pour signer</div>
       <canvas id="sig-canvas"></canvas>
-      <button type="button" class="sig-clear" onclick="effacerSignature()">Effacer</button>
+      <button type="button" class="sig-clear" onclick="effacerSignature()">Effacer la signature</button>
+    </div>
+
+    <div class="certif-text">
+      Je certifie l'exactitude des informations ci-dessus et j'accepte les conditions du présent contrat.
     </div>
 
     <button class="btn-accept" id="btn-accepter" onclick="accepter()" disabled>
@@ -281,7 +335,7 @@ function genererPdf(){
     y += 6;
   });
   y += 4;
-  if(data.db) { ligne('Début', data.db); }
+  if(data.db) { ligne('Début', data.db + (data.hr ? ' à '+data.hr : '')); }
   if(data.du) { ligne('Durée', data.du); }
   if(data.ds) { ligne('Délai SAV', data.ds); }
   if(data.co) { ligne('Conditions', data.co); }
@@ -299,7 +353,7 @@ function genererPdf(){
     doc.text('(Remise appliquée : -' + formatFCFA(data.re) + ')', 18, y+9);
   }
   doc.setFontSize(10); doc.setFont(undefined,'bold');
-  doc.text('ACOMPTE 20% (à régler maintenant) :', 18, y+18);
+  doc.text('FRAIS DE VALIDATION (20%, à régler maintenant) :', 18, y+18);
   doc.text(formatFCFA(data.ac), 140, y+18);
   doc.setFont(undefined,'normal'); doc.setFontSize(9);
   doc.text('Solde après intervention : ' + formatFCFA(data.so), 18, y+25);
@@ -309,6 +363,10 @@ function genererPdf(){
   doc.setFont(undefined,'bold'); doc.setFontSize(10);
   doc.text('✓ Contrat accepté et signé le ' + new Date().toLocaleDateString('fr-FR'), 14, y);
   y += 6;
+  doc.setTextColor(90,90,90);
+  doc.setFont(undefined,'italic'); doc.setFontSize(8.5);
+  doc.text("Je certifie l'exactitude des informations ci-dessus et j'accepte les conditions du présent contrat.", 14, y, { maxWidth: 182 });
+  y += 8;
   if(window.__sigData){
     try{ doc.addImage(window.__sigData, 'PNG', 14, y, 60, 25); }catch(e){}
   }
@@ -341,7 +399,7 @@ function accepter(){
     `👤 Client : ${data.n}\n` +
     `📞 Tél : ${data.t}\n` +
     `💰 Montant net : ${formatFCFA(data.ne)}\n` +
-    `⚠️ Acompte 20% à récupérer : ${formatFCFA(data.ac)}\n` +
+    `⚠️ Frais de validation (20%) à récupérer : ${formatFCFA(data.ac)}\n` +
     `💵 Solde après intervention : ${formatFCFA(data.so)}\n\n` +
     `Le client a signé électroniquement depuis son téléphone.`;
 

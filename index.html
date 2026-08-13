@@ -555,7 +555,7 @@
       <div class="total-line" style="border:none; padding:4px 0;"><span class="label" style="font-size:12.5px;">Remise appliquée</span><span class="mono" id="remiseAmount" style="font-size:13px; color:var(--red);">- 0 FCFA</span></div>
       <div class="total-line" style="border:none; padding:4px 0;"><span class="label" style="font-size:12.5px;">Montant net</span><span class="mono" id="netAmount" style="font-size:14px; font-weight:700;">0 FCFA</span></div>
       <div class="total-line" style="border:none; padding:8px 0 4px; border-top:1px dashed var(--line); margin-top:6px;">
-        <span class="label" style="font-size:13px; font-weight:700; color:var(--amber);">⚠️ Acompte 20% à régler maintenant</span>
+        <span class="label" style="font-size:13px; font-weight:700; color:var(--amber);">⚠️ Frais de validation (20%) à régler maintenant</span>
         <span class="mono" id="acompteAmount" style="font-size:16px; font-weight:800; color:var(--amber);">0 FCFA</span>
       </div>
       <div class="total-line" style="border:none; padding:4px 0;"><span class="label" style="font-size:12.5px;">Solde après intervention</span><span class="mono" id="soldeAmount" style="font-size:13px;">0 FCFA</span></div>
@@ -572,6 +572,12 @@
         <input type="date" id="dateDebut">
       </div>
       <div>
+        <label class="first">Heure du rendez-vous</label>
+        <input type="time" id="heureRdv">
+      </div>
+    </div>
+    <div class="row2">
+      <div>
         <label class="first">Durée du contrat</label>
         <select id="duree">
           <option value="Intervention unique">Intervention unique</option>
@@ -580,43 +586,24 @@
           <option value="24 mois">24 mois</option>
         </select>
       </div>
+      <div>
+        <label class="first">Délai d'intervention garanti (SAV)</label>
+        <select id="delaiSav">
+          <option value="24h">Sous 24 heures</option>
+          <option value="48h" selected>Sous 48 heures</option>
+          <option value="72h">Sous 72 heures</option>
+          <option value="Sur rendez-vous">Sur rendez-vous</option>
+        </select>
+      </div>
     </div>
-
-    <label>Délai d'intervention garanti (SAV)</label>
-    <select id="delaiSav">
-      <option value="24h">Sous 24 heures</option>
-      <option value="48h" selected>Sous 48 heures</option>
-      <option value="72h">Sous 72 heures</option>
-      <option value="Sur rendez-vous">Sur rendez-vous</option>
-    </select>
 
     <label>Conditions particulières / garanties</label>
     <textarea id="conditions" placeholder="Ex. Pièces non incluses, garantie main d'œuvre 3 mois, etc."></textarea>
   </div>
 
-  <!-- SECTION 5 : SIGNATURE -->
+  <!-- SECTION 5 : RECAP -->
   <div class="section">
-    <h2><span class="num">5</span> Signature électronique</h2>
-    <p class="hint">Le client signe directement à l'écran avec le doigt ou la souris.</p>
-
-    <div id="padWrap">
-      <canvas id="sigCanvas" height="150"></canvas>
-      <div class="pad-placeholder" id="padPlaceholder">Signez ici</div>
-    </div>
-    <div class="sig-actions">
-      <button class="btn-ghost" id="clearSig">Effacer la signature</button>
-      <span class="mono" style="font-size:11px;color:var(--muted);" id="sigDate"></span>
-    </div>
-
-    <label class="consent">
-      <input type="checkbox" id="consentBox">
-      <span>Je certifie l'exactitude des informations ci-dessus et j'accepte les conditions du présent contrat.</span>
-    </label>
-  </div>
-
-  <!-- SECTION 6 : RECAP -->
-  <div class="section">
-    <h2><span class="num">6</span> Récapitulatif</h2>
+    <h2><span class="num">5</span> Récapitulatif</h2>
     <div id="recapBox">
       <div class="empty">Remplissez le formulaire ci-dessus pour voir le récapitulatif.</div>
     </div>
@@ -770,68 +757,8 @@ function computeMontants(d){
   return { remise, net, acompte, solde };
 }
 
-/* ---------- Signature pad ---------- */
-const canvas = document.getElementById("sigCanvas");
-const ctx = canvas.getContext("2d");
-const placeholder = document.getElementById("padPlaceholder");
-let drawing = false, hasSignature = false;
-
-function resizeCanvas(){
-  const ratio = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * ratio;
-  canvas.height = 150 * ratio;
-  ctx.scale(ratio, ratio);
-  ctx.lineWidth = 2.2;
-  ctx.lineCap = "round";
-  ctx.strokeStyle = "#0f2e38";
-}
-window.addEventListener("resize", ()=>{ if(!hasSignature) resizeCanvas(); });
-resizeCanvas();
-
-function getPos(e){
-  const rect = canvas.getBoundingClientRect();
-  const t = e.touches ? e.touches[0] : e;
-  return {x: t.clientX - rect.left, y: t.clientY - rect.top};
-}
-function startDraw(e){
-  drawing = true;
-  hasSignature = true;
-  placeholder.style.display = "none";
-  const p = getPos(e);
-  ctx.beginPath();
-  ctx.moveTo(p.x, p.y);
-  e.preventDefault();
-}
-function moveDraw(e){
-  if(!drawing) return;
-  const p = getPos(e);
-  ctx.lineTo(p.x, p.y);
-  ctx.stroke();
-  e.preventDefault();
-}
-function endDraw(){
-  drawing = false;
-  document.getElementById("sigDate").textContent = hasSignature ? ("Signé le " + new Date().toLocaleDateString("fr-FR")) : "";
-  refreshAll();
-}
-canvas.addEventListener("mousedown", startDraw);
-canvas.addEventListener("mousemove", moveDraw);
-canvas.addEventListener("mouseup", endDraw);
-canvas.addEventListener("mouseleave", endDraw);
-canvas.addEventListener("touchstart", startDraw, {passive:false});
-canvas.addEventListener("touchmove", moveDraw, {passive:false});
-canvas.addEventListener("touchend", endDraw);
-
-document.getElementById("clearSig").addEventListener("click", ()=>{
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  hasSignature = false;
-  placeholder.style.display = "flex";
-  document.getElementById("sigDate").textContent = "";
-  refreshAll();
-});
-
-document.getElementById("consentBox").addEventListener("change", refreshAll);
+/* ---------- Signature : gérée à distance par le client (lecture-contrat.html), plus de pad ici ---------- */
+let hasSignature = false; // conservé pour compat, toujours false côté formulaire admin
 
 /* ---------- Collecte des données ---------- */
 function getData(){
@@ -883,11 +810,10 @@ function getData(){
     total: computeTotal(),
     remise: parseFloat(document.getElementById("remise").value) || 0,
     dateDebut: document.getElementById("dateDebut").value,
+    heureRdv: document.getElementById("heureRdv").value,
     duree: document.getElementById("duree").value,
     delaiSav: document.getElementById("delaiSav").value,
-    conditions: document.getElementById("conditions").value.trim(),
-    consent: document.getElementById("consentBox").checked,
-    hasSignature
+    conditions: document.getElementById("conditions").value.trim()
   };
 }
 
@@ -895,12 +821,10 @@ function getData(){
 function isComplete(d){
   const formuleOk = d.isMaintenance ? !!d.formule : true;
   const zoneOk = !d.needsZone || !!d.zoneRaw;
-  return d.nom && d.tel && d.type && d.prestations.length>0 && formuleOk && zoneOk && d.consent && d.hasSignature;
+  return d.nom && d.tel && d.type && d.prestations.length>0 && formuleOk && zoneOk;
 }
 function isReadyForLink(d){
-  const formuleOk = d.isMaintenance ? !!d.formule : true;
-  const zoneOk = !d.needsZone || !!d.zoneRaw;
-  return d.nom && d.tel && d.type && d.prestations.length>0 && formuleOk && zoneOk;
+  return isComplete(d);
 }
 function formaterNumeroWhatsapp(tel){
   let clean = String(tel).replace(/[^0-9]/g,'');
@@ -917,7 +841,7 @@ function refreshSignal(d){
   if(d.nom && d.tel && d.adresse) score++;
   if(d.type && d.prestations.length>0) score++;
   if(d.dateDebut && d.duree) score++;
-  if(d.consent && d.hasSignature) score++;
+  if(isReadyForLink(d)) score++;
   document.querySelectorAll("#signalMeter .bar").forEach((bar,i)=>{
     bar.classList.toggle("on", i < score);
   });
@@ -945,9 +869,9 @@ function refreshRecap(d){
   html += line("Prestations", prestationLabels.length ? prestationLabels.join(", ") : "—");
   html += line("Montant total (hors devis)", formatFCFA(d.total));
   html += line("Début", d.dateDebut || "—");
+  if(d.heureRdv) html += line("Heure du rendez-vous", d.heureRdv);
   html += line("Durée", d.duree || "—");
   html += line("Délai SAV garanti", d.delaiSav || "—");
-  html += line("Signature", d.hasSignature ? "✓ Signée" : "En attente");
   box.innerHTML = html;
 }
 function line(a,b){
@@ -963,7 +887,7 @@ function refreshButtons(d){
   document.getElementById("btnPdf").disabled = !ok;
   document.getElementById("btnWa").disabled = !ok;
   document.getElementById("btnLien").disabled = !isReadyForLink(d);
-  document.getElementById("statusMsg").textContent = ok ? "" : "Complétez le nom, téléphone, la zone (si Canal+/TNT coché), une prestation, la signature et la case de consentement pour continuer.";
+  document.getElementById("statusMsg").textContent = ok ? "" : "Complétez le nom, téléphone, la zone (si Canal+/TNT coché) et une prestation pour continuer.";
 }
 
 function refreshAll(){
@@ -988,7 +912,7 @@ function refreshAll(){
 }
 
 /* ---------- Ecoute globale sur les champs texte ---------- */
-["clientNom","clientTel","clientVille","clientAdresse","dateDebut","duree","delaiSav","conditions","autreTexte","frequence","remise"]
+["clientNom","clientTel","clientVille","clientAdresse","dateDebut","heureRdv","duree","delaiSav","conditions","autreTexte","frequence","remise"]
   .forEach(id=>{
     const el = document.getElementById(id);
     if(el) el.addEventListener("input", refreshAll);
@@ -1082,14 +1006,17 @@ function buildPdf(d){
   if(y > 230) { doc.addPage(); y = 20; }
 
   doc.setFont("helvetica","bold");
-  doc.text("5. Signature électronique du client", marginX, y);
-  y += 6;
-  const imgData = canvas.toDataURL("image/png");
-  doc.addImage(imgData, "PNG", marginX, y, 70, 30);
-  y += 34;
+  doc.text("5. Rendez-vous & validation", marginX, y);
+  y += 7;
   doc.setFont("helvetica","normal");
+  doc.setFontSize(10);
+  doc.text("Rendez-vous prévu : " + (d.dateDebut || "—") + (d.heureRdv ? " à " + d.heureRdv : ""), marginX, y);
+  y += 7;
+  doc.text("La signature électronique du client est recueillie via le lien sécurisé envoyé par WhatsApp.", marginX, y, { maxWidth: 210 - marginX*2 });
+  y += 10;
   doc.setFontSize(9);
-  doc.text("Signé électroniquement le " + new Date().toLocaleDateString("fr-FR") + " — document généré via l'application Perfect Agence Service.", marginX, y);
+  doc.setTextColor(120,120,120);
+  doc.text("Document généré le " + new Date().toLocaleDateString("fr-FR") + " — Perfect Agence Service.", marginX, y);
 
   return doc;
 }
@@ -1143,7 +1070,7 @@ document.getElementById("btnLien").addEventListener("click", ()=>{
     ga: d.garantieText, fl: d.formuleLabel, fp: d.formulePrice,
     pr: d.prestations.map(p => [p.label, p.price, p.devis ? 1 : 0]),
     to: d.total, re: m.remise, ne: m.net, ac: m.acompte, so: m.solde,
-    db: d.dateDebut, du: d.duree, ds: d.delaiSav, co: d.conditions
+    db: d.dateDebut, hr: d.heureRdv, du: d.duree, ds: d.delaiSav, co: d.conditions
   };
   const encoded = toBase64Url(JSON.stringify(payload));
   const lien = "https://djiegbochristianhamed-maker.github.io/Perfect-agence-contrat/lecture-contrat.html?d=" + encoded;
