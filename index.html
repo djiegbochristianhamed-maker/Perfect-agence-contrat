@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Perfect Agence Service — Contrat de Maintenance & SAV</title>
+<title>Perfect Agence Service — Fiche d'Intervention & SAV</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -370,10 +370,10 @@
   <div class="brand">
     <div>
       <div class="brand-name">Perfect Agence Service</div>
-      <div class="brand-sub">Contrat de maintenance TNT / Satellite &amp; SAV</div>
+      <div class="brand-sub">Fiche d'intervention TNT / Satellite &amp; SAV</div>
     </div>
     <div class="ref">
-      Réf. contrat
+      Réf. intervention
       <b class="mono" id="refDisplay">—</b>
     </div>
   </div>
@@ -443,13 +443,13 @@
 
     <div class="freq-wrap" id="installWrap">
       <div class="infobox">
-        🛡️ <b>Garantie de 3 mois</b> sur la main d'œuvre. Passé ce délai, vous pouvez nous solliciter à tout moment pour une nouvelle intervention, ou souscrire un <b>contrat de maintenance annuel</b> pour bénéficier d'une assistance continue toute l'année.
+        🛡️ <b>Garantie de 3 mois</b> sur la main d'œuvre. Passé ce délai, vous pouvez nous solliciter à tout moment pour une nouvelle intervention, ou souscrire à un <b>programme d'interventions de maintenance annuel</b> pour bénéficier d'une assistance continue toute l'année.
       </div>
     </div>
 
     <div class="freq-wrap" id="freqWrap">
       <div class="infobox">
-        🔁 <b>4 visites préventives par an</b> (1 par trimestre), incluses <b>gratuitement</b> dans le contrat.
+        🔁 <b>4 visites préventives par an</b> (1 par trimestre), incluses <b>gratuitement</b> dans la formule.
       </div>
 
       <label>Formule de maintenance</label>
@@ -613,7 +613,6 @@
 
 <div class="actionbar">
   <button class="btn btn-pdf" id="btnPdf" disabled>⬇ Télécharger le PDF</button>
-  <button class="btn btn-wa" id="btnWa" disabled>✆ Envoyer via WhatsApp</button>
   <button class="btn btn-wa" id="btnLien" style="background:var(--green);" disabled>🔗 Envoyer le lien au client</button>
 </div>
 <div class="status" id="statusMsg"></div>
@@ -783,7 +782,7 @@ function getData(){
   const isMaintenance = document.getElementById("freqWrap").classList.contains("show");
   const isInstallation = document.getElementById("installWrap").classList.contains("show");
   const garantieText = isInstallation
-    ? "Garantie de " + GARANTIE_INSTALLATION_MOIS + " mois sur la main d'œuvre (assistance continue possible via un contrat de maintenance annuel)"
+    ? "Garantie de " + GARANTIE_INSTALLATION_MOIS + " mois sur la main d'œuvre (assistance continue possible via un programme d'interventions de maintenance annuel)"
     : null;
   const needsZone = lockedKeys.some(key=>{
     const opt = document.querySelector('.check-opt[data-key="'+key+'"]');
@@ -859,7 +858,7 @@ function refreshRecap(d){
   html += line("Client", d.nom || "—");
   html += line("Téléphone", d.tel || "—");
   html += line("Adresse", (d.adresse || "—") + (d.ville ? ", " + d.ville : ""));
-  html += line("Type de contrat", d.typeLabel || "—");
+  html += line("Type d'intervention", d.typeLabel || "—");
   if(d.zone) html += line("Zone d'intervention", d.zone);
   if(d.frequence) html += line("Visites préventives", d.frequence);
   if(d.garantieText) html += line("Garantie & assistance", d.garantieText);
@@ -932,7 +931,7 @@ function buildPdf(d){
   doc.setFontSize(10);
   doc.setFont("helvetica","normal");
   y += 6;
-  doc.text("Contrat de maintenance TNT / Satellite & SAV — Réf. " + refId, marginX, y);
+  doc.text("Fiche d'intervention TNT / Satellite & SAV — Réf. " + refId, marginX, y);
   y += 4;
   doc.setDrawColor(200);
   doc.line(marginX, y, 210-marginX, y);
@@ -956,7 +955,7 @@ function buildPdf(d){
   y += 3;
 
   doc.setFont("helvetica","bold");
-  doc.text("2. Contrat", marginX, y); y += 7;
+  doc.text("2. Détails de l'intervention", marginX, y); y += 7;
   field("Type :", d.typeLabel);
   if(d.zone) field("Zone d'intervention :", d.zone);
   if(d.frequence) field("Visites préventives :", d.frequence);
@@ -1025,7 +1024,7 @@ document.getElementById("btnPdf").addEventListener("click", ()=>{
   const d = getData();
   if(!isComplete(d)) return;
   const doc = buildPdf(d);
-  doc.save("Contrat_" + refId + ".pdf");
+  doc.save("Intervention_" + refId + ".pdf");
   document.getElementById("statusMsg").innerHTML = '<span class="ok">✓ PDF téléchargé. Joignez-le au message WhatsApp qui va s\'ouvrir.</span>';
 });
 
@@ -1034,7 +1033,7 @@ document.getElementById("btnWa").addEventListener("click", ()=>{
   const d = getData();
   if(!isComplete(d)) return;
 
-  let msg = "📄 *Nouveau contrat — Perfect Agence Service*\n";
+  let msg = "📄 *Nouvelle intervention — Perfect Agence Service*\n";
   msg += "Réf : " + refId + "\n\n";
   msg += "👤 Client : " + d.nom + "\n";
   msg += "📞 Tél : " + d.tel + "\n";
@@ -1050,7 +1049,7 @@ document.getElementById("btnWa").addEventListener("click", ()=>{
   msg += "📅 Début : " + d.dateDebut + " | Durée : " + d.duree + "\n";
   msg += "⏱ Délai SAV : " + d.delaiSav + "\n";
   if(d.conditions) msg += "📝 Conditions : " + d.conditions + "\n";
-  msg += "\n✅ Contrat signé électroniquement.\n";
+  msg += "\n✅ Fiche signée électroniquement.\n";
   msg += "⚠️ Merci de joindre le PDF téléchargé à ce message.";
 
   const url = "https://wa.me/" + WHATSAPP_BUSINESS_NUMBER + "?text=" + encodeURIComponent(msg);
@@ -1076,7 +1075,7 @@ document.getElementById("btnLien").addEventListener("click", ()=>{
   const lien = "https://djiegbochristianhamed-maker.github.io/Perfect-agence-contrat/lecture-contrat.html?d=" + encoded;
 
   const msgClient = "Bonjour " + d.nom + " 👋 Perfect Agence Service ici.\n\n" +
-    "Voici votre contrat à consulter et signer : " + lien + "\n\n" +
+    "Voici votre fiche d'intervention à consulter et signer : " + lien + "\n\n" +
     "Ouvrez le lien, un seul clic suffit pour signer — vous recevrez automatiquement votre copie.\n\nMerci !";
 
   const url2 = "https://wa.me/" + formaterNumeroWhatsapp(d.tel) + "?text=" + encodeURIComponent(msgClient);
