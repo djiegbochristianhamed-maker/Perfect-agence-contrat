@@ -884,7 +884,6 @@ function escapeHtml(s){
 function refreshButtons(d){
   const ok = isComplete(d);
   document.getElementById("btnPdf").disabled = !ok;
-  document.getElementById("btnWa").disabled = !ok;
   document.getElementById("btnLien").disabled = !isReadyForLink(d);
   document.getElementById("statusMsg").textContent = ok ? "" : "Complétez le nom, téléphone, la zone (si Canal+/TNT coché) et une prestation pour continuer.";
 }
@@ -1025,35 +1024,7 @@ document.getElementById("btnPdf").addEventListener("click", ()=>{
   if(!isComplete(d)) return;
   const doc = buildPdf(d);
   doc.save("Intervention_" + refId + ".pdf");
-  document.getElementById("statusMsg").innerHTML = '<span class="ok">✓ PDF téléchargé. Joignez-le au message WhatsApp qui va s\'ouvrir.</span>';
-});
-
-/* ---------- Envoi WhatsApp ---------- */
-document.getElementById("btnWa").addEventListener("click", ()=>{
-  const d = getData();
-  if(!isComplete(d)) return;
-
-  let msg = "📄 *Nouvelle intervention — Perfect Agence Service*\n";
-  msg += "Réf : " + refId + "\n\n";
-  msg += "👤 Client : " + d.nom + "\n";
-  msg += "📞 Tél : " + d.tel + "\n";
-  msg += "📍 Adresse : " + (d.adresse||"-") + (d.ville ? ", "+d.ville : "") + "\n\n";
-  msg += "🛠 Type : " + d.typeLabel + "\n";
-  if(d.zone) msg += "📍 Zone : " + d.zone + "\n";
-  if(d.frequence) msg += "🔁 " + d.frequence + "\n";
-  if(d.garantieText) msg += "🛡️ " + d.garantieText + "\n";
-  if(d.formuleLabel) msg += "📦 Formule : " + d.formuleLabel + "\n";
-  if(d.formulePrice) msg += "💳 Abonnement annuel : " + formatFCFA(d.formulePrice) + "\n";
-  msg += "📋 Prestations : " + d.prestations.map(p => p.devis ? p.label+" (sur devis)" : p.label+" ("+formatFCFA(p.price)+")").join(", ") + "\n";
-  msg += "💰 Montant total (hors devis) : " + formatFCFA(d.total) + "\n";
-  msg += "📅 Début : " + d.dateDebut + " | Durée : " + d.duree + "\n";
-  msg += "⏱ Délai SAV : " + d.delaiSav + "\n";
-  if(d.conditions) msg += "📝 Conditions : " + d.conditions + "\n";
-  msg += "\n✅ Fiche signée électroniquement.\n";
-  msg += "⚠️ Merci de joindre le PDF téléchargé à ce message.";
-
-  const url = "https://wa.me/" + WHATSAPP_BUSINESS_NUMBER + "?text=" + encodeURIComponent(msg);
-  window.open(url, "_blank");
+  document.getElementById("statusMsg").innerHTML = '<span class="ok">✓ PDF téléchargé.</span>';
 });
 
 /* ---------- Envoi du lien de signature au client (sans base de données) ---------- */
