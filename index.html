@@ -206,6 +206,26 @@
     border-radius:10px;
     padding:18px 16px;
     margin-bottom:16px;
+    transition: border-color .25s ease, box-shadow .25s ease;
+  }
+  .field-invalid{
+    border-color:#c0392b !important;
+    box-shadow:0 0 0 3px rgba(192,57,43,0.1);
+  }
+  .field-valid{
+    border-color:#2f9e5c !important;
+  }
+  input.field-invalid, select.field-invalid{
+    background:#fdf1ef;
+  }
+  input.field-valid, select.field-valid{
+    background:#f2fbf5;
+  }
+  #prestationsList{
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:10px;
+    transition: border-color .25s ease, box-shadow .25s ease;
   }
   .section h2{
     font-size:13px;
@@ -351,16 +371,16 @@
     </div>
     <div class="lock-label">Signal verrouillé</div>
 
-    <h1 class="hero-title">Votre contrat de maintenance,<br><em>signé en quelques minutes.</em></h1>
-    <p class="hero-tag">TNT · Satellite · Décodeur Canal+ · Caméras · Clôture concertina — un dossier clair, une signature électronique, un envoi direct par WhatsApp.</p>
+    <h1 class="hero-title">Votre fiche d'intervention,<br><em>validée en quelques minutes.</em></h1>
+    <p class="hero-tag">TNT · Satellite · Décodeur Canal+ · Caméras · Clôture concertina — un dossier clair, une signature électronique du client, un envoi direct par WhatsApp.</p>
 
     <div class="hero-chips">
-      <span class="hero-chip">4 visites préventives gratuites / an</span>
-      <span class="hero-chip">Signature électronique</span>
-      <span class="hero-chip">Réf. contrat automatique</span>
+      <span class="hero-chip">Frais de validation 20%</span>
+      <span class="hero-chip">Signature à distance</span>
+      <span class="hero-chip">Réf. automatique</span>
     </div>
 
-    <a class="hero-cta" href="#startForm">Démarrer mon contrat →</a>
+    <a class="hero-cta" href="#startForm">Démarrer une intervention →</a>
     <div class="hero-foot">Abidjan &amp; environs · Intervention sur rendez-vous</div>
   </div>
   <div class="scroll-cue"></div>
@@ -415,7 +435,7 @@
   </div>
 
   <!-- SECTION 2 : TYPE DE CONTRAT -->
-  <div class="section">
+  <div class="section" id="wrapType">
     <h2><span class="num">2</span> Type de contrat</h2>
     <div class="radio-grid" id="typeContrat">
       <label class="radio-opt" data-val="installation">
@@ -881,11 +901,53 @@ function escapeHtml(s){
 }
 
 /* ---------- Boutons ---------- */
+function markField(el, isValid, touched){
+  if(!el) return;
+  el.classList.remove("field-invalid", "field-valid");
+  if(!touched) return; // n'affiche rien tant que le champ n'a jamais été touché
+  el.classList.add(isValid ? "field-valid" : "field-invalid");
+}
+
+function refreshFieldColors(d){
+  const nomEl = document.getElementById("clientNom");
+  const telEl = document.getElementById("clientTel");
+  markField(nomEl, !!d.nom, nomEl.value.length>0 || nomEl === document.activeElement);
+  markField(telEl, !!d.tel, telEl.value.length>0 || telEl === document.activeElement);
+
+  const wrapType = document.getElementById("wrapType");
+  if(wrapType){
+    wrapType.classList.remove("field-invalid","field-valid");
+    if(d.type) wrapType.classList.add("field-valid");
+    else if(userInteracted) wrapType.classList.add("field-invalid");
+  }
+
+  const prestList = document.getElementById("prestationsList");
+  if(prestList){
+    prestList.classList.remove("field-invalid","field-valid");
+    if(d.prestations.length>0) prestList.classList.add("field-valid");
+    else if(userInteracted) prestList.classList.add("field-invalid");
+  }
+
+  const zoneEl = document.getElementById("zone");
+  if(zoneEl){
+    zoneEl.classList.remove("field-invalid","field-valid");
+    if(d.needsZone){
+      if(d.zoneRaw) zoneEl.classList.add("field-valid");
+      else if(userInteracted) zoneEl.classList.add("field-invalid");
+    }
+  }
+}
+
+let userInteracted = false;
+document.getElementById("mainForm") && document.getElementById("mainForm").addEventListener("click", ()=>{ userInteracted = true; });
+document.addEventListener("input", ()=>{ userInteracted = true; }, {capture:true});
+
 function refreshButtons(d){
   const ok = isComplete(d);
   document.getElementById("btnPdf").disabled = !ok;
   document.getElementById("btnLien").disabled = !isReadyForLink(d);
-  document.getElementById("statusMsg").textContent = ok ? "" : "Complétez le nom, téléphone, la zone (si Canal+/TNT coché) et une prestation pour continuer.";
+  refreshFieldColors(d);
+  document.getElementById("statusMsg").textContent = ok ? "" : "Les champs entourés en rouge doivent être complétés pour continuer.";
 }
 
 function refreshAll(){
