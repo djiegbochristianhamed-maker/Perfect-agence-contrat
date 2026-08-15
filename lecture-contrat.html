@@ -156,12 +156,9 @@
   <div class="state-box">Chargement de votre contrat...</div>
 </main>
 
-<script>
-function fromBase64Url(str){
-  str = str.replace(/-/g,'+').replace(/_/g,'/');
-  while(str.length % 4) str += '=';
-  return decodeURIComponent(escape(atob(str)));
-}
+<script type="module">
+import { db, doc, getDoc, updateDoc } from "./firebase-config.js";
+
 function formatFCFA(n){
   return Math.round(n||0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " FCFA";
 }
@@ -173,18 +170,29 @@ function esc(s){
 let canvas, ctx, hasSig = false, drawing = false;
 
 const params = new URLSearchParams(window.location.search);
-const raw = params.get('d');
+const ficheId = params.get('id');
 const content = document.getElementById('content');
 let data = null;
 
-if(!raw){
-  content.innerHTML = '<div class="state-box">Lien invalide ou incomplet.</div>';
-} else {
+async function charger(){
+  if(!ficheId){
+    content.innerHTML = '<div class="state-box">Lien invalide ou incomplet.</div>';
+    return;
+  }
   try{
-    data = JSON.parse(fromBase64Url(raw));
-    afficherContrat();
+    const snap = await getDoc(doc(db, "fiches", ficheId));
+    if(!snap.exists()){
+      content.innerHTML = '<div class="state-box">Cette fiche est introuvable. Contactez Perfect Agence Service.</div>';
+      return;
+    }
+    data = snap.data();
+    if(data.statutClient === 'accepte' && data.accepteAt){
+      afficherResultatDejaSigne();
+    } else {
+      afficherContrat();
+    }
   }catch(e){
-    content.innerHTML = '<div class="state-box">Impossible de lire ce contrat. Contactez Perfect Agence Service.</div>';
+    content.innerHTML = '<div class="state-box">Impossible de charger cette fiche. Vérifiez votre connexion internet.</div>';
   }
 }
 
@@ -388,9 +396,28 @@ function genererPdf(){
 }
 
 /* ---------- Acceptation ---------- */
-function accepter(){
+async function accepter(){
   if(!hasSig) return;
   window.__sigData = canvas.toDataURL('image/png');
+  const accepteAt = new Date().toISOString();
+
+  const btn = document.getElementById('btn-accepter');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ Enregistrement...'; }
+
+  try{
+    await updateDoc(doc(db, "fiches", ficheId), {
+      statutClient: 'accepte',
+      accepteAt: accepteAt,
+      signatureData: window.__sigData
+    });
+  }catch(e){
+    alert("Erreur lors de l'enregistrement de votre signature. Vérifiez votre connexion internet et réessayez.");
+    if(btn){ btn.disabled = false; btn.textContent = "✅ J'ACCEPTE CETTE INTERVENTION"; }
+    return;
+  }
+
+  data.accepteAt = accepteAt;
+  data.signatureData = window.__sigData;
 
   content.innerHTML = `
     <div class="result-box">
@@ -400,8 +427,8 @@ function accepter(){
     </div>
   `;
 
-  const doc = genererPdf();
-  doc.save('Intervention-' + data.ref + '.pdf');
+  const pdfDoc = genererPdf();
+  pdfDoc.save('Intervention-' + data.ref + '.pdf');
 
   const msg = `✅ *Intervention validée et signée*\n` +
     `Réf : ${data.ref}\n\n` +
@@ -417,6 +444,24 @@ function accepter(){
   }, 900);
 }
 window.accepter = accepter;
+
+function afficherResultatDejaSigne(){
+  content.innerHTML = `
+    <div class="result-box">
+      <div class="emoji">✅</div>
+      <h3>Intervention déjà validée</h3>
+      <p>Bonjour ${esc(data.n)}, cette fiche a déjà été signée le ${new Date(data.accepteAt).toLocaleDateString('fr-FR')}. Vous pouvez retélécharger votre copie ci-dessous.</p>
+      <button class="btn-accept ready" style="max-width:320px; margin:0 auto;" onclick="retelecharger()">📄 Retélécharger mon PDF</button>
+    </div>
+  `;
+}
+window.retelecharger = function(){
+  window.__sigData = data.signatureData;
+  const pdfDoc = genererPdf();
+  pdfDoc.save('Intervention-' + data.ref + '.pdf');
+};
+
+charger();
 </script>
 </body>
 </html>

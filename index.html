@@ -637,7 +637,8 @@
 </div>
 <div class="status" id="statusMsg"></div>
 
-<script>
+<script type="module">
+import { db, collection, doc, addDoc, getDoc, serverTimestamp } from "./firebase-config.js";
 /* ============ CONFIGURATION ============
    Remplacez ce numéro par le numéro WhatsApp Business réel
    de Perfect Agence Service (format international, sans + ni espaces).
@@ -1090,10 +1091,14 @@ document.getElementById("btnPdf").addEventListener("click", ()=>{
 });
 
 /* ---------- Envoi du lien de signature au client (sans base de données) ---------- */
-document.getElementById("btnLien").addEventListener("click", ()=>{
+document.getElementById("btnLien").addEventListener("click", async ()=>{
   const d = getData();
   if(!isReadyForLink(d)) return;
   const m = computeMontants(d);
+  const btnLien = document.getElementById("btnLien");
+  const texteOriginal = btnLien.textContent;
+  btnLien.disabled = true;
+  btnLien.textContent = "⏳ Enregistrement...";
 
   const payload = {
     ref: refId,
@@ -1102,17 +1107,27 @@ document.getElementById("btnLien").addEventListener("click", ()=>{
     ga: d.garantieText, fl: d.formuleLabel, fp: d.formulePrice,
     pr: d.prestations.map(p => [p.label, p.price, p.devis ? 1 : 0]),
     to: d.total, re: m.remise, ne: m.net, ac: m.acompte, so: m.solde,
-    db: d.dateDebut, hr: d.heureRdv, du: d.duree, ds: d.delaiSav, co: d.conditions
+    db: d.dateDebut, hr: d.heureRdv, du: d.duree, ds: d.delaiSav, co: d.conditions,
+    statutClient: 'en_attente',
+    createdAt: serverTimestamp()
   };
-  const encoded = toBase64Url(JSON.stringify(payload));
-  const lien = "https://djiegbochristianhamed-maker.github.io/Perfect-agence-contrat/lecture-contrat.html?d=" + encoded;
 
-  const msgClient = "Bonjour " + d.nom + " 👋 Perfect Agence Service ici.\n\n" +
-    "Voici votre fiche d'intervention à consulter et signer : " + lien + "\n\n" +
-    "Ouvrez le lien, un seul clic suffit pour signer — vous recevrez automatiquement votre copie.\n\nMerci !";
+  try {
+    const docRef = await addDoc(collection(db, "fiches"), payload);
+    const lien = "https://djiegbochristianhamed-maker.github.io/Perfect-agence-contrat/lecture-contrat.html?id=" + docRef.id;
 
-  const url2 = "https://wa.me/" + formaterNumeroWhatsapp(d.tel) + "?text=" + encodeURIComponent(msgClient);
-  window.open(url2, "_blank");
+    const msgClient = "Bonjour " + d.nom + " 👋 Perfect Agence Service ici.\n\n" +
+      "Voici votre fiche d'intervention à consulter et signer : " + lien + "\n\n" +
+      "Ouvrez le lien, un seul clic suffit pour signer — vous recevrez automatiquement votre copie.\n\nMerci !";
+
+    const url2 = "https://wa.me/" + formaterNumeroWhatsapp(d.tel) + "?text=" + encodeURIComponent(msgClient);
+    window.open(url2, "_blank");
+  } catch(e) {
+    alert("Erreur lors de l'enregistrement de la fiche. Vérifiez votre connexion internet et réessayez.\n\n" + e.message);
+  } finally {
+    btnLien.disabled = false;
+    btnLien.textContent = texteOriginal;
+  }
 });
 
 refreshAll();
