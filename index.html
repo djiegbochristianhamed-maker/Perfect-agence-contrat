@@ -1105,7 +1105,7 @@ document.getElementById("btnLien").addEventListener("click", async ()=>{
     n: d.nom, t: d.tel, v: d.ville, a: d.adresse,
     ty: d.typeLabel, z: d.zone, fr: d.frequence,
     ga: d.garantieText, fl: d.formuleLabel, fp: d.formulePrice,
-    pr: d.prestations.map(p => [p.label, p.price, p.devis ? 1 : 0]),
+    pr: d.prestations.map(p => ({ l: p.label, p: p.price, d: p.devis ? 1 : 0 })),
     to: d.total, re: m.remise, ne: m.net, ac: m.acompte, so: m.solde,
     db: d.dateDebut, hr: d.heureRdv, du: d.duree, ds: d.delaiSav, co: d.conditions,
     statutClient: 'en_attente',

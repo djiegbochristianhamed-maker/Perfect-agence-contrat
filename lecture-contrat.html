@@ -198,7 +198,7 @@ async function charger(){
 
 function afficherContrat(){
   const prestationsHtml = (data.pr || []).map(p => {
-    const label = p[0], prix = p[1], devis = p[2];
+    const label = p.l, prix = p.p, devis = p.d;
     return devis ? `• ${esc(label)} <em>(sur devis)</em>` : `• ${esc(label)} — ${formatFCFA(prix)}`;
   }).join('<br>');
 
@@ -347,7 +347,7 @@ function genererPdf(){
   doc.text('Prestations', 14, y); y += 7;
   doc.setFont(undefined,'normal'); doc.setFontSize(9.5);
   (data.pr||[]).forEach(p=>{
-    const txt = p[2] ? `• ${p[0]} (sur devis)` : `• ${p[0]} — ${formatFCFA(p[1])}`;
+    const txt = p.d ? `• ${p.l} (sur devis)` : `• ${p.l} — ${formatFCFA(p.p)}`;
     doc.text(txt, 16, y, { maxWidth: 180 });
     y += 6;
   });
