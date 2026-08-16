@@ -278,6 +278,10 @@
     color:var(--muted); background:#f2ede0; border-color:var(--line); font-weight:600; font-style:italic;
   }
   .check-opt.locked.active .price-locked{ border-color:var(--gold); background:#fbf3e2; color:#7a5c14; }
+  .price-manual{
+    margin-left:auto; width:110px; font-size:13px; font-weight:700; text-align:right;
+    border:1.5px solid var(--gold); border-radius:6px; padding:5px 8px; background:#fbf3e2; color:#7a5c14;
+  }
   .zone-note{ font-size:12px; color:var(--muted); margin-top:6px; min-height:16px; }
   .devis-note{
     font-size:12px; color:var(--muted); margin-top:8px; background:#f2ede0; border-radius:6px; padding:8px 10px;
@@ -520,6 +524,7 @@
           <div class="opt-title">Installation Canal+ (parabole + décodeur)</div>
         </div>
         <span class="price-locked mono" id="priceDisplay_canal">—</span>
+        <input type="number" class="price-manual mono" id="priceManual_canal" placeholder="Montant FCFA" style="display:none;">
       </label>
       <label class="check-opt locked" data-key="tnt" data-pricekey="tnt">
         <input type="checkbox">
@@ -527,6 +532,7 @@
           <div class="opt-title">Installation TNT (antenne terrestre)</div>
         </div>
         <span class="price-locked mono" id="priceDisplay_tnt">—</span>
+        <input type="number" class="price-manual mono" id="priceManual_tnt" placeholder="Montant FCFA" style="display:none;">
       </label>
       <label class="check-opt" data-key="cablage">
         <input type="checkbox">
@@ -716,18 +722,36 @@ function currentZonePricing(){
   const z = zoneSelect.value;
   return z && PRICING_TABLE[z] ? PRICING_TABLE[z] : null;
 }
+function getLockedPrice(key){
+  if(zoneSelect.value === "autre"){
+    const manualInput = document.getElementById("priceManual_" + key);
+    const val = parseFloat(manualInput.value);
+    return isNaN(val) ? null : val;
+  }
+  const pricing = currentZonePricing();
+  return pricing ? pricing[key] : null;
+}
 function updateLockedPrices(){
   const pricing = currentZonePricing();
+  const isAutre = zoneSelect.value === "autre";
   lockedKeys.forEach(key=>{
     const display = document.getElementById("priceDisplay_" + key);
-    if(!pricing){
-      display.textContent = zoneSelect.value === "autre" ? "Sur devis" : "—";
+    const manualInput = document.getElementById("priceManual_" + key);
+    if(isAutre){
+      display.style.display = "none";
+      manualInput.style.display = "block";
     } else {
-      display.textContent = formatFCFA(pricing[key]);
+      display.style.display = "";
+      manualInput.style.display = "none";
+      if(!pricing){
+        display.textContent = "—";
+      } else {
+        display.textContent = formatFCFA(pricing[key]);
+      }
     }
   });
-  if(zoneSelect.value === "autre"){
-    zoneNote.textContent = "Zone hors grille : le tarif vous sera confirmé par l'agence.";
+  if(isAutre){
+    zoneNote.textContent = "Zone hors grille : saisissez vous-même le tarif pour Canal+ et TNT ci-dessous.";
   } else if(!zoneSelect.value){
     zoneNote.textContent = "Sélectionnez une zone pour afficher les tarifs Canal+ et TNT.";
   } else {
@@ -736,6 +760,8 @@ function updateLockedPrices(){
 }
 zoneSelect.addEventListener("change", ()=>{ updateLockedPrices(); refreshAll(); });
 updateLockedPrices();
+document.getElementById("priceManual_canal").addEventListener("input", refreshAll);
+document.getElementById("priceManual_tnt").addEventListener("input", refreshAll);
 
 /* ---------- Prestations checkboxes ---------- */
 const checkOpts = document.querySelectorAll(".check-opt");
@@ -754,11 +780,11 @@ checkOpts.forEach(opt=>{
 /* ---------- Total ---------- */
 function computeTotal(){
   let total = 0;
-  const pricing = currentZonePricing();
   lockedKeys.forEach(key=>{
     const opt = document.querySelector('.check-opt[data-key="'+key+'"]');
     const cb = opt.querySelector("input[type=checkbox]");
-    if(cb.checked && pricing) total += pricing[key];
+    const price = getLockedPrice(key);
+    if(cb.checked && price !== null) total += price;
   });
   const formuleChecked = document.querySelector('input[name="formuleContrat"]:checked');
   if(formuleChecked && formulePriceInput.value){
@@ -783,7 +809,6 @@ let hasSignature = false; // conservé pour compat, toujours false côté formul
 /* ---------- Collecte des données ---------- */
 function getData(){
   const type = document.querySelector('input[name="typeContrat"]:checked');
-  const pricing = currentZonePricing();
   const prestations = [];
   checkOpts.forEach(opt=>{
     const cb = opt.querySelector("input[type=checkbox]");
@@ -795,8 +820,8 @@ function getData(){
       }
       const key = opt.dataset.key;
       let price = null;
-      if(lockedKeys.includes(key) && pricing) price = pricing[key];
-      prestations.push({label, price, devis: !(lockedKeys.includes(key) && pricing)});
+      if(lockedKeys.includes(key)) price = getLockedPrice(key);
+      prestations.push({label, price, devis: !(lockedKeys.includes(key) && price !== null)});
     }
   });
   const formule = document.querySelector('input[name="formuleContrat"]:checked');
