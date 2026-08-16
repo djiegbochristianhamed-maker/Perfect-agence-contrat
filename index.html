@@ -265,10 +265,11 @@
   }
   .radio-opt input, .check-opt input{width:auto; margin:0;}
   .radio-opt.active, .check-opt.active{border-color:var(--navy); background:#eef4f2;}
-  .check-opt .price{
-    margin-left:auto; width:110px; display:none;
+  .check-opt input.price{
+    margin-left:auto !important; width:110px !important; display:none;
+    font-size:13px; text-align:right; border:1.5px solid #cfe0da; border-radius:6px; padding:5px 8px;
   }
-  .check-opt.active .price{display:block;}
+  .check-opt.active input.price{display:block;}
   .price-locked{
     margin-left:auto; font-size:13px; font-weight:700; color:var(--navy);
     background:#eef4f2; border:1px solid #cfe0da; padding:6px 10px; border-radius:6px;
@@ -540,6 +541,7 @@
           <div class="opt-title">Câblage électrique</div>
         </div>
         <span class="price-locked mono devis">Sur devis</span>
+        <input type="number" class="price mono" placeholder="Montant si connu">
       </label>
       <label class="check-opt" data-key="camera">
         <input type="checkbox">
@@ -547,6 +549,7 @@
           <div class="opt-title">Caméra de sécurité</div>
         </div>
         <span class="price-locked mono devis">Sur devis</span>
+        <input type="number" class="price mono" placeholder="Montant si connu">
       </label>
       <label class="check-opt" data-key="concertina">
         <input type="checkbox">
@@ -554,6 +557,7 @@
           <div class="opt-title">Clôture concertina</div>
         </div>
         <span class="price-locked mono devis">Sur devis</span>
+        <input type="number" class="price mono" placeholder="Montant si connu">
       </label>
       <label class="check-opt" data-key="autre">
         <input type="checkbox">
@@ -561,6 +565,7 @@
           <div class="opt-title">Autre prestation</div>
         </div>
         <span class="price-locked mono devis">Sur devis</span>
+        <input type="number" class="price mono" placeholder="Montant si connu">
       </label>
     </div>
     <div id="autreWrap" style="display:none;">
@@ -786,6 +791,16 @@ function computeTotal(){
     const price = getLockedPrice(key);
     if(cb.checked && price !== null) total += price;
   });
+  checkOpts.forEach(opt=>{
+    const key = opt.dataset.key;
+    if(lockedKeys.includes(key)) return; // déjà comptées ci-dessus
+    const cb = opt.querySelector("input[type=checkbox]");
+    const priceInput = opt.querySelector("input.price");
+    if(cb.checked && priceInput){
+      const val = parseFloat(priceInput.value);
+      if(!isNaN(val)) total += val;
+    }
+  });
   const formuleChecked = document.querySelector('input[name="formuleContrat"]:checked');
   if(formuleChecked && formulePriceInput.value){
     total += parseFloat(formulePriceInput.value) || 0;
@@ -820,8 +835,16 @@ function getData(){
       }
       const key = opt.dataset.key;
       let price = null;
-      if(lockedKeys.includes(key)) price = getLockedPrice(key);
-      prestations.push({label, price, devis: !(lockedKeys.includes(key) && price !== null)});
+      if(lockedKeys.includes(key)){
+        price = getLockedPrice(key);
+      } else {
+        const priceInput = opt.querySelector("input.price");
+        if(priceInput){
+          const val = parseFloat(priceInput.value);
+          if(!isNaN(val)) price = val;
+        }
+      }
+      prestations.push({label, price, devis: price === null});
     }
   });
   const formule = document.querySelector('input[name="formuleContrat"]:checked');
