@@ -222,6 +222,7 @@ function afficherContrat(){
       ${data.db ? `<div class="row"><span class="k">Début</span><span class="v">${esc(data.db)}${data.hr ? ' à '+esc(data.hr) : ''}</span></div>` : ''}
       ${data.du ? `<div class="row"><span class="k">Durée</span><span class="v">${esc(data.du)}</span></div>` : ''}
       ${data.ds ? `<div class="row"><span class="k">Délai SAV</span><span class="v">${esc(data.ds)}</span></div>` : ''}
+      ${data.co ? `<div class="row" style="flex-direction:column; align-items:flex-start; gap:6px;"><span class="k">📝 Conditions particulières</span><span class="prest-list" style="font-weight:600; color:var(--navy);">${esc(data.co)}</span></div>` : ''}
     </div>
 
     <div class="montant-card">
